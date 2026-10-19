@@ -27,6 +27,7 @@ outputs/html/_test_map.html
 outputs/html/_*
 outputs/figures/_*
 outputs/_preview/
+outputs/_待用户确认删除/
 
 # -----------------------------------------------------------------------------
 # 4. Python 标准忽略项

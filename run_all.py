@@ -7,7 +7,7 @@ run_all.py —— 一键复现入口
 
     python run_all.py
 
-流水线共 9 个阶段：
+流水线共 10 个阶段：
     STEP 01  数据获取      scripts/01_load.py        官方 ZIP 下载 + 按发票抽样
     STEP 02  数据清洗      scripts/02_clean.py       去重/缺失/异常治理 + 星型模型
     STEP 03  分析模型      scripts/03_analysis.py    8 类商业模型 + 9 组业务图数据
@@ -17,6 +17,7 @@ run_all.py —— 一键复现入口
     STEP 07  离线打包      scripts/07_offline_bundle.py  大屏内联 echarts/plotly，免联网
     STEP 08  交付归档      scripts/08_deliver.py     按提交类别归档到作业目录
     STEP 09  结果汇总      scripts/09_excel_summary.py  关键结果 Excel 多 Sheet 工作簿
+    STEP 10  演示截图      scripts/10_dashboard_screenshots.py  大屏分 Tab 截图 + 拼图 + GIF
 
 可选参数：
     python run_all.py --skip 1 2      跳过 STEP 01、02（数据已存在时加速）
@@ -26,6 +27,7 @@ run_all.py —— 一键复现入口
 说明：STEP 07 需要 assets/echarts.min.js；若缺失会自动尝试联网下载，
       缺失时跳过内联并保留原 CDN 版大屏。STEP 08 默认归档到桌面
       「商业数据分析」目录，可用 python scripts/08_deliver.py <目录> 指定。
+      STEP 10 依赖本机 Chrome / Edge 无头浏览器（自动探测），缺失时跳过。
 
 设计要点：
     * 每个阶段都是幂等的 —— 重复执行不会产生重复文件或覆盖损坏；
@@ -56,6 +58,7 @@ STEPS: list[tuple[int, str, str, bool]] = [
     (7, "scripts/07_offline_bundle.py", "离线自包含大屏打包（内联 JS 库）", True),
     (8, "scripts/08_deliver.py", "交付物归档（按提交类别整理）", True),
     (9, "scripts/09_excel_summary.py", "关键结果 Excel 汇总（多 Sheet 工作簿）", True),
+    (10, "scripts/10_dashboard_screenshots.py", "大屏演示截图（分 Tab + 拼图 + GIF）", True),
 ]
 
 
@@ -118,6 +121,7 @@ def main() -> int:
     print("    结果表     outputs/tables/                       （CSV / JSON）")
     print("    大屏       outputs/dashboard/dashboard_dark.html （依赖 CDN）")
     print("    离线大屏   outputs/dashboard/dashboard_offline.html（单文件自包含）")
+    print("    演示截图   outputs/dashboard_screenshots/     （4 张分 Tab 截图 + 拼图 + GIF）")
     print("    论文       docs/《商业数据分析》期末大论文.docx")
     print("    归档       由 STEP 08 输出到作业提交目录")
     print("=" * 74)

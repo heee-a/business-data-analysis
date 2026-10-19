@@ -162,6 +162,26 @@ footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10
   </div>
 </section>
 
+<section>
+  <div class="wrap">
+    <h2>大屏演示（自动截图 + 轮播动画）</h2>
+    <p class="lead">由 <code>scripts/10_dashboard_screenshots.py</code> 调用本机无头浏览器对离线大屏逐标签页实拍（1920×1080），并合成轮播 GIF——作为评分标准中「大屏演示截图或录屏」创新加分材料提交，论文中同步收录（图 5-7）。</p>
+    <div class="dash-box">
+      <div class="dash-bar">
+        <span>四标签页轮播演示（GIF）</span>
+        <a href="dashboard_screenshots/大屏演示_轮播.gif" target="_blank">打开原图 →</a>
+      </div>
+      <a href="dashboard_screenshots/大屏演示_轮播.gif" target="_blank"><img src="dashboard_screenshots/大屏演示_轮播.gif" alt="大屏四标签轮播演示" style="width:100%;display:block;background:#0b1020"></a>
+    </div>
+    <div class="grid" style="margin-top:16px">
+      <div class="cell"><a href="dashboard_screenshots/大屏_销售总览.png" target="_blank"><img src="dashboard_screenshots/大屏_销售总览.png" alt="Tab1 销售总览" loading="lazy"></a><div class="cap"><b>Tab ① 销售总览</b>KPI 卡 + 销售趋势 + 月度排名时间轴</div></div>
+      <div class="cell"><a href="dashboard_screenshots/大屏_客户价值.png" target="_blank"><img src="dashboard_screenshots/大屏_客户价值.png" alt="Tab2 客户价值" loading="lazy"></a><div class="cap"><b>Tab ② 客户价值</b>RFM 玫瑰图 + 分群对比 + 留存曲线 + 复购漏斗</div></div>
+      <div class="cell"><a href="dashboard_screenshots/大屏_商品洞察.png" target="_blank"><img src="dashboard_screenshots/大屏_商品洞察.png" alt="Tab3 商品洞察" loading="lazy"></a><div class="cap"><b>Tab ③ 商品洞察</b>TOP10 + 品类环形 + 词云 + ABC + 关联规则榜</div></div>
+      <div class="cell"><a href="dashboard_screenshots/大屏_预测与复盘.png" target="_blank"><img src="dashboard_screenshots/大屏_预测与复盘.png" alt="Tab4 预测与复盘" loading="lazy"></a><div class="cap"><b>Tab ④ 预测与复盘</b>预测置信带 + 回测对比 + 波士顿矩阵</div></div>
+    </div>
+  </div>
+</section>
+
 <section id="gallery">
   <div class="wrap">
     <h2>图表作品（35 张，200dpi，全 Python 生成）</h2>
@@ -215,7 +235,7 @@ footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10
 <span class="c"># 2. 安装依赖（建议 Python 3.11+ 虚拟环境）</span>
 <span class="k">pip install</span> -r requirements.txt
 
-<span class="c"># 3. 一键复现全部结果（6 个阶段，约 7 分钟）</span>
+<span class="c"># 3. 一键复现全部结果（10 个阶段，约 8 分钟）</span>
 <span class="k">python</span> run_all.py
 
 <span class="c"># 常用参数：--list 查看阶段 | --only 4 5 仅出图 | --skip 1 2 跳过取数与清洗</span></pre>

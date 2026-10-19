@@ -8,7 +8,7 @@ STEP 08 —— 交付物归档
 归档结构
 --------
     01_期末大论文/      Word + PDF
-    02_交互大屏/        离线自包含版（双击即开）+ 在线 CDN 版
+    02_交互大屏/        离线自包含版（双击即开）+ 在线 CDN 版 + 演示截图/GIF
     03_图表/            模板复现图 25 张 · 业务模型图 10 张
     04_结果表/          明细表 CSV 38 个 · 参数与指标 JSON 30 个
     05_数据与字典/      清洗后数据（压缩）+ 维表 + 数据字典 + 星型模型
@@ -106,6 +106,17 @@ def main() -> int:
         if copy(cfg.DASH_DIR / src, d02 / dst_name):
             manifest.append((f"02_交互大屏/{dst_name}",
                              human((d02 / dst_name).stat().st_size), note))
+
+    # 大屏演示截图（评分标准 2.6 节可选创新加分材料）
+    shot_dir = cfg.ROOT / "outputs" / "dashboard_screenshots"
+    if shot_dir.is_dir():
+        for p in sorted(shot_dir.iterdir()):
+            if p.is_file() and copy(p, d02 / p.name):
+                note = ("四标签 2×2 拼合（论文图 5-7）" if "拼图" in p.name
+                        else "四标签轮播动画" if p.name.endswith(".gif")
+                        else "大屏分 Tab 实拍截图（1920×1080）")
+                manifest.append((f"02_交互大屏/{p.name}",
+                                 human((d02 / p.name).stat().st_size), note))
 
     # ---------------------------------------------------------- 03 图表
     d03 = dest / "03_图表"
