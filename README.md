@@ -53,14 +53,16 @@ business-data-analysis/
 │   ├── 04_visuals.py   # 35 张静态图表（200dpi）
 │   ├── 05_dashboard.py # Pyecharts 交互大屏（4 页 20 组件，暗色主题）
 │   ├── 06_report.py    # 期末大论文 Word + 图表索引生成
+│   ├── 07_offline_bundle.py # 离线自包含大屏（内联 echarts/plotly，免联网）
+│   ├── 08_deliver.py   # 交付物按提交类别归档到作业目录
 │   └── utils/          # config / io_utils / style / chart_helpers
 ├── outputs/
 │   ├── figures/        # fig01 ~ fig35（35 张 PNG）
 │   ├── tables/         # 69 个结果表（CSV + JSON）
-│   ├── dashboard/      # dashboard_dark.html 大屏
+│   ├── dashboard/      # dashboard_dark.html（CDN 版）+ dashboard_offline.html（离线版）
 │   └── html/           # 20 个独立组件 HTML
 ├── docs/               # 期末大论文、图表索引、数据来源合规声明
-├── pages/              # GitHub Pages 入口（大屏在线版）
+├── pages/              # GitHub Pages 入口（大屏离线版 + 图表图廊）
 ├── requirements.txt
 ├── run_all.py          # 一键复现入口
 └── README.md
@@ -111,7 +113,7 @@ pip install -r requirements.txt
 python run_all.py
 ```
 
-`run_all.py` 依次执行 6 个阶段：
+`run_all.py` 依次执行 8 个阶段：
 
 | STEP | 脚本 | 说明 | 耗时参考 |
 | :--: | --- | --- | :-: |
@@ -121,6 +123,8 @@ python run_all.py
 | 04 | `04_visuals.py` | 35 张静态图表 | ~1 min |
 | 05 | `05_dashboard.py` | 交互大屏 | ~30 s |
 | 06 | `06_report.py` | 期末大论文 + 图表索引 | ~10 s |
+| 07 | `07_offline_bundle.py` | 离线自包含大屏打包（可选，需 `assets/echarts.min.js`） | ~2 s |
+| 08 | `08_deliver.py` | 交付物归档到作业目录（可选） | ~5 s |
 
 ```bash
 # 常用参数
@@ -205,7 +209,12 @@ python run_all.py --skip 1 2      # 数据已就绪时跳过前两步
 | 数据来源合规声明 | `docs/数据来源合规声明.md` |
 | 图表索引（35 图 + 20 组件） | `docs/图表索引.md` |
 | 数据字典与星型模型说明 | `data/schema/` |
-| 交互大屏（在线） | [GitHub Pages](https://heee-a.github.io/business-data-analysis/) |
+| 交互大屏（在线，JS 已内联、打开即用） | [GitHub Pages](https://heee-a.github.io/business-data-analysis/) |
+| 交互大屏（离线单文件） | `outputs/dashboard/dashboard_offline.html` |
+
+## 作者
+
+秦子睿 · 数据科学与大数据技术 大数据241班 · 学号 2024459985127 · 数据科学学院
 
 ## 分工说明
 
