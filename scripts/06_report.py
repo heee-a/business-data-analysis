@@ -608,9 +608,9 @@ BODY: list[tuple] = [
     ("h1", "7 结论与展望", [
         ("h2", "7.1 研究结论", [
             ("p", "本项目完成了从合规取数到商业建议的完整闭环。核心价值可以概括为三点："),
-            ("p", "第一，**方法闭环可被完整复现**。项目以 6 个脚本串联成流水线，"
+            ("p", "第一，**方法闭环可被完整复现**。项目以 10 个脚本串联成流水线，"
                   "随机种子固定为 2026，任何人克隆仓库后执行 python run_all.py "
-                  "即可重新生成 35 张图表、69 张结果表与交互大屏，"
+                  "即可重新生成 35 张图表、68 张结果表、交互大屏与大屏演示截图，"
                   "这在 Excel 手工分析中是无法实现的。"),
             ("p", "第二，**模型结论有数据支撑且可检验**。8 类模型的参数均有业务依据，"
                   "预测模型给出 95% 置信区间并完成 30 天留出回测（MAPE 34.70%、RMSE 11,169 英镑），"
@@ -657,6 +657,7 @@ BODY: list[tuple] = [
             "rows": [
                 ["代码编写", "生成数据清洗、模型计算、图表绘制与大屏脚本的初始框架", "辅助（本人审阅修改）"],
                 ["图表实现", "协助实现瀑布图、子弹图、矩形树图等 Matplotlib 无原生支持的图型", "辅助（算法由本人验证）"],
+                ["演示材料", "编写无头浏览器自动截图脚本，定位虚拟时间预算导致浏览器挂起等问题", "辅助（本人验证通过）"],
                 ["论文撰写", "协助章节结构组织与文字润色", "辅助（数据与结论由本人产出）"],
                 ["错误调试", "定位并修复脚本运行中的语法与 API 兼容问题", "辅助"],
             ],
@@ -670,6 +671,8 @@ BODY: list[tuple] = [
             "「按期末大作业模板结构，用 python-docx 生成论文，"
             "要求题目三号黑体居中、正文小四号宋体 1.5 倍行距、嵌入指定图表」",
             "「检查这段 RFM 计算代码：为什么 Monetary 阈值用中位数而不是均值」",
+            "「写一个脚本用无头浏览器对大屏 HTML 逐标签页截图，"
+            "要求不依赖虚拟时间预算、可一键复现」",
         ]),
         ("p", "**需要明确声明的是**：本项目的数据获取、清洗规则设计、模型选型、"
               "参数阈值设定、结果解读与全部商业建议，均由本人基于课程所学独立完成并承担责任；"
@@ -884,6 +887,26 @@ def build_figure_index_md() -> Path:
         "\n> 大屏文件：`outputs/dashboard/dashboard_dark.html`（暗色主题，Pyecharts 生成）",
         "> 全部图表与大屏均由 Python 代码生成，未使用 Power BI / Tableau / Fine BI 等 BI 软件。",
     ]
+
+    # 四、大屏演示材料（STEP 10 生成后存在才收录）
+    shot_dir = cfg.ROOT / "outputs" / "dashboard_screenshots"
+    if shot_dir.is_dir():
+        shot_files = sorted(p.name for p in shot_dir.iterdir() if p.is_file())
+        if shot_files:
+            md += ["\n## 四、大屏演示材料（创新加分项，STEP 10 生成）\n",
+                   "| 文件 | 内容 |", "|---|---|"]
+            desc = {
+                "大屏_销售总览.png": "Tab ① 销售总览实拍（1920×1080）",
+                "大屏_客户价值.png": "Tab ② 客户价值实拍（1920×1080）",
+                "大屏_商品洞察.png": "Tab ③ 商品洞察实拍（1920×1080）",
+                "大屏_预测与复盘.png": "Tab ④ 预测与复盘实拍（1920×1080）",
+                "大屏演示_四标签拼图.png": "四标签 2×2 拼合（论文图 5-7）",
+                "大屏演示_轮播.gif": "四标签轮播动画",
+            }
+            for name in shot_files:
+                md.append(f"| `{name}` | {desc.get(name, '大屏演示截图')} |")
+            md += ["\n> 由 `scripts/10_dashboard_screenshots.py` 调用本机无头浏览器自动截取，"
+                   "对应论文 §5.4 与图 5-7。"]
     out = cfg.DOC_DIR / "图表索引.md"
     iou.write_text("\n".join(md) + "\n", out)
     iou.log(f"图表索引已生成 → {out}（{len(fig_df)} 图 + {len(dash_df)} 组件）")
@@ -1122,13 +1145,18 @@ def build_docx() -> Path:
         "│   ├── 04_visuals.py    35 张静态图表（200dpi）",
         "│   ├── 05_dashboard.py  Pyecharts 交互大屏（20 组件）",
         "│   ├── 06_report.py     期末大论文与图表索引生成",
+        "│   ├── 07_offline_bundle.py  离线自包含大屏打包",
+        "│   ├── 08_deliver.py    交付物归档",
+        "│   ├── 09_excel_summary.py  关键结果 Excel 汇总",
+        "│   ├── 10_dashboard_screenshots.py  大屏演示截图（拼图 + GIF）",
         "│   └── utils/           config.py / io_utils.py / style.py / chart_helpers.py",
         "├── outputs/",
         "│   ├── figures/     fig01 ~ fig35（35 张 PNG）",
-        "│   ├── tables/      69 个结果表（CSV + JSON）",
-        "│   ├── dashboard/   dashboard_dark.html（大屏）",
+        "│   ├── tables/      68 个结果表（CSV + JSON）+ 00_关键结果汇总.xlsx",
+        "│   ├── dashboard/   dashboard_dark.html + dashboard_offline.html（大屏）",
+        "│   ├── dashboard_screenshots/  大屏分 Tab 截图 + 拼图 + GIF",
         "│   └── html/        20 个独立组件 HTML",
-        "├── docs/           《商业数据分析》期末大论文.docx、图表索引.md、数据来源合规声明.md",
+        "├── docs/           《商业数据分析》期末大论文.docx / .pdf、图表索引.md、数据来源合规声明.md",
         "├── pages/          index.html（GitHub Pages 入口）",
         "├── requirements.txt    依赖清单",
         "├── run_all.py          一键复现入口",
