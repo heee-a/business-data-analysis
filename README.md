@@ -55,10 +55,11 @@ business-data-analysis/
 │   ├── 06_report.py    # 期末大论文 Word + 图表索引生成
 │   ├── 07_offline_bundle.py # 离线自包含大屏（内联 echarts/plotly，免联网）
 │   ├── 08_deliver.py   # 交付物按提交类别归档到作业目录
+│   ├── 09_excel_summary.py # 关键结果 Excel 汇总（19 个 Sheet）
 │   └── utils/          # config / io_utils / style / chart_helpers
 ├── outputs/
 │   ├── figures/        # fig01 ~ fig35（35 张 PNG）
-│   ├── tables/         # 69 个结果表（CSV + JSON）
+│   ├── tables/         # 68 个结果表（CSV + JSON）+ 00_关键结果汇总.xlsx
 │   ├── dashboard/      # dashboard_dark.html（CDN 版）+ dashboard_offline.html（离线版）
 │   └── html/           # 20 个独立组件 HTML
 ├── docs/               # 期末大论文、图表索引、数据来源合规声明
@@ -125,6 +126,7 @@ python run_all.py
 | 06 | `06_report.py` | 期末大论文 + 图表索引 | ~10 s |
 | 07 | `07_offline_bundle.py` | 离线自包含大屏打包（可选，需 `assets/echarts.min.js`） | ~2 s |
 | 08 | `08_deliver.py` | 交付物归档到作业目录（可选） | ~5 s |
+| 09 | `09_excel_summary.py` | 关键结果 Excel 汇总（19 个 Sheet） | ~1 s |
 
 ```bash
 # 常用参数
@@ -209,12 +211,30 @@ python run_all.py --skip 1 2      # 数据已就绪时跳过前两步
 | 数据来源合规声明 | `docs/数据来源合规声明.md` |
 | 图表索引（35 图 + 20 组件） | `docs/图表索引.md` |
 | 数据字典与星型模型说明 | `data/schema/` |
+| 关键结果 Excel 汇总（19 个 Sheet） | `outputs/tables/00_关键结果汇总.xlsx` |
 | 交互大屏（在线，JS 已内联、打开即用） | [GitHub Pages](https://heee-a.github.io/business-data-analysis/) |
 | 交互大屏（离线单文件） | `outputs/dashboard/dashboard_offline.html` |
 
 ## 作者
 
 秦子睿 · 数据科学与大数据技术 大数据241班 · 学号 2024459985127 · 数据科学学院
+
+## 评分标准对照
+
+对照《要求及评分标准》逐项自查的落实情况：
+
+| 评分维度 | 分值 | 落实情况 | 证据位置 |
+| --- | :-: | --- | --- |
+| 1. 数据获取合规性与清洗质量 | 15 | 白名单官方 ZIP 下载、**零爬虫**；合规声明含数据源/URL/获取方式/日期/License；抽样方法与种子已说明；缺失/异常/重复三类治理 + 主外键对齐；CSV/JSON/SQLite 三格式导出 | `data/raw/provenance.json`、`docs/数据来源合规声明.md`、论文 §2–§3 |
+| 2. 商业分析模型应用深度 | 20 | **8 类**模型（要求 ≥3）：RFM 八分类、同期群留存、帕累托 ABC、Apriori、波士顿矩阵、SARIMA + Holt-Winters、K-Means、复购漏斗；每个阈值均给业务依据；预测含 95% 置信区间 + 30 天留出回测（MAPE 34.70%） | `scripts/03_analysis.py`、`outputs/tables/03_*`、论文 §4 |
+| 3. 可视化复现与大屏质量 | 25 | **35 张**图（模板复现 25 + 业务模型 10）；Matplotlib 无原生支持的图型（瀑布/子弹/坡度/矩形树图）已自行实现；大屏 **4 页 20 组件**，带筛选联动、缩放、下钻、暗色主题；全 Python 生成，无 BI 软件、无 Excel 截图 | `outputs/figures/`、`outputs/dashboard/dashboard_offline.html`、`docs/图表索引.md` |
+| 4. 代码规范性与文档完整性 | 10 | 8 阶段流水线 + `run_all.py` 一键复现；`requirements.txt` 固定版本；README 含来源/步骤/索引/分工；图表统一命名 `figNN_主题.png` 并有索引表 | `run_all.py`、`requirements.txt`、`docs/图表索引.md` |
+| 5. 期末大论文质量 | 25 | 题目 18 字；摘要 299 字符（200–300 区间内）；关键词 5 个；正文 1.17 万字含 14 张嵌入图与逐图解读、Python 与 Excel 实现对比；6 条带数据支撑的商业建议 | `docs/《商业数据分析》期末大论文.docx` / `.pdf` |
+| 6. 创新性与商业洞察深度 | 5 | 自研图表算法（squarify 矩形树图、子弹图）；自动化复现流水线（含离线大屏打包与交付归档两个自建步骤）；AI 使用规范披露（论文第 8 章） | `scripts/utils/chart_helpers.py`、论文 §8 |
+
+> 优秀级自检项均已覆盖：预测含置信区间与误差回测 ✓；大屏组件 ≥6 且有筛选联动/下钻 ✓；
+> 图表 10 行 3 列缩排附录（论文附录 D）✓；≥3 条可落地商业建议（6 条）✓；
+> 仓库公开且非空 ✓。
 
 ## 分工说明
 

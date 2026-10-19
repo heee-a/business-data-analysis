@@ -143,6 +143,12 @@ def main() -> int:
         total = sum((s / f.name).stat().st_size for f in files if (s / f.name).exists())
         manifest.append((f"04_结果表/{sub}/", f"{len(files)} 个 · {human(total)}", note))
 
+    xlsx = cfg.TAB_DIR / "00_关键结果汇总.xlsx"
+    if copy(xlsx, d04 / xlsx.name):
+        manifest.append(("04_结果表/00_关键结果汇总.xlsx",
+                         human(xlsx.stat().st_size),
+                         "16+1 个 Sheet 汇总工作簿，便于核对与二次引用"))
+
     # ---------------------------------------------------------- 05 数据与字典
     d05 = dest / "05_数据与字典"
     reset_dir(d05)

@@ -46,7 +46,7 @@ from utils import io_utils as iou  # noqa: E402
 # ============================================================================
 # 论文元数据（姓名/学号/班级需本人填写，见 SCHOOL_INFO）
 # ============================================================================
-TITLE = "基于零售交易数据的用户价值与品类结构分析"
+TITLE = "零售交易数据的用户价值与品类结构分析"
 SCHOOL_INFO = {
     "学院": "数据科学学院",
     "专业班级": "数据科学与大数据技术 大数据241班",
@@ -57,26 +57,16 @@ SCHOOL_INFO = {
 INDEPENDENT_WORK = True          # 独立完成；若为 2 人组，请在下表中补充组员与分工
 TEAM_MEMBERS = [("秦子睿", "全流程：数据获取、清洗、建模、可视化、论文撰写")]
 
-KEYWORDS = "商业数据分析；RFM 模型；同期群分析；关联规则；时间序列预测；Python 可视化"
+KEYWORDS = "商业数据分析；RFM 模型；同期群分析；关联规则；Python 可视化"
 
 ABSTRACT = (
-    "本文以 UCI Machine Learning Repository 公开发布的 Online Retail II 跨国零售交易数据集为研究对象，"
-    "采用数据源官方一次性下载文件（ZIP）的白名单方式合规获取 1,067,371 条原始明细记录，"
-    "经「按发票整单 30% 随机抽样」（随机种子 2026）后得到 315,722 行样本，"
-    "在保证购物篮结构完整的前提下将数据规模控制在可分析区间。数据治理阶段通过重复值剔除、"
-    "缺失值标记、四类异常值规则过滤与主外键一致性校验，保留 302,786 行有效明细，"
-    "并将其重构为含 4 张维度表的星型模型，同时导出 CSV、JSON、SQLite 三种格式以支持复用验证。"
-    "分析环节构建 RFM 八分类、同期群留存、帕累托 ABC 分类、Apriori 关联规则、波士顿矩阵、"
-    "SARIMA 与 Holt-Winters 时间序列预测、K-Means 用户分群、复购漏斗共 8 类商业分析模型，"
-    "各模型参数均给出业务依据，预测类模型输出点预测与 95% 置信区间并完成 30 天留出回测。"
-    "可视化环节以 Matplotlib 与 Seaborn 全 Python 复现 23 种《Excel 数据可视化》典型模板图，"
-    "并输出 10 张与模型一一对应的业务图，合计 35 张 200dpi 图表；"
-    "另以 Pyecharts 搭建含 20 个联动组件的暗色交互式商业分析大屏。"
-    "研究发现：英国单一市场贡献 84.96% 销售额，市场集中度过高；22.42% 的 SKU 贡献 80% 营收，"
-    "符合典型帕累托特征；客户次月留存率骤降至 10.65% 后长期稳定在 9%~12% 区间，"
-    "说明留存曲线在第 2 个月即进入平台期；圣诞季品类同比增速达 40.61%，季节波动显著。"
-    "据此提出聚焦高价值客群运营、差异化库存配置、关联组合营销、节日前置备货与流失分层召回等"
-    "5 条有数据支撑的商业建议。"
+    "本文以 UCI 公开数据集 Online Retail II 为对象，经官方合规下载与发票整单 30% 抽样"
+    "（种子 2026）后治理得到 30.28 万行明细并构建星型模型；进而应用 RFM、同期群留存、"
+    "帕累托 ABC、Apriori、波士顿矩阵、SARIMA、K-Means 与复购漏斗共 8 类模型，"
+    "参数有业务依据，预测含 95% 置信区间并完成留出回测。可视化环节复现 23 种模板图"
+    "与 10 张业务图，并以 Pyecharts 搭建大屏。发现英国市场占比 84.96%，"
+    "22.42% 的 SKU 贡献 80% 营收，留存第 2 个月进入平台期，"
+    "据此提出客群运营、库存与关联营销 5 条建议。"
 )
 
 # ============================================================================
@@ -1129,7 +1119,39 @@ def build_docx() -> Path:
                for _, r in dash_df.iterrows()],
               caption="表 C-2  交互大屏 20 个组件清单")
     add_para(doc, "完整索引（含栅格宽度与交互能力说明）见仓库 docs/图表索引.md；"
-                  "大屏演示文件见 outputs/dashboard/dashboard_dark.html。", indent=False)
+                  "大屏演示文件见 outputs/dashboard/dashboard_offline.html（离线版，双击即开）。", indent=False)
+
+    # ------------------------------------------------- 附录 D 图表总览缩略图
+    add_heading(doc, "附录 D　图表总览（缩略图）", 2)
+    add_para(doc, "按评分标准「图表可按 10 行 3 列缩排附录」的要求，"
+                  "将 35 张静态图以缩略图形式集中呈现，便于快速核对图表与模型的对应关系。"
+                  "各图原始文件（200dpi PNG）位于仓库 outputs/figures/。", indent=False)
+
+    figs = [(r["编号"], r["文件名"], r["模板/模型"])
+            for _, r in fig_df.iterrows()]
+    ncols = 3
+    nrows = (len(figs) + ncols - 1) // ncols
+    tbl = doc.add_table(rows=nrows, cols=ncols)
+    tbl.style = "Table Grid"
+    tbl.autofit = True
+    for idx, (code, fname, model) in enumerate(figs):
+        cell = tbl.cell(idx // ncols, idx % ncols)
+        cp = cell.paragraphs[0]
+        cp.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        run = cp.add_run()
+        pic_path = cfg.FIG_DIR / fname
+        if pic_path.exists():
+            run.add_picture(str(pic_path), width=Cm(4.35))
+        cap = cell.add_paragraph()
+        cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        r2 = cap.add_run(f"{code}　{model}")
+        r2.font.size = Pt(7)
+        r2.font.name = "Times New Roman"
+        r2._element.rPr.rFonts.set(qn("w:eastAsia"), "宋体")
+        cap.paragraph_format.space_before = Pt(2)
+        cap.paragraph_format.space_after = Pt(0)
+
+    add_para(doc, "", indent=False)
 
     # ---------------------------------------------------------------- 落盘
     out = cfg.DOC_DIR / "《商业数据分析》期末大论文.docx"
