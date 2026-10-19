@@ -1,0 +1,18 @@
+[
+ {
+  "Model":"Holt-Winters",
+  "MAPE":34.7,
+  "RMSE":11169.16,
+  "order":"add-trend(damped) + add-seasonal(7)",
+  "aic":null,
+  "Selected":true
+ },
+ {
+  "Model":"SARIMA",
+  "MAPE":36.33,
+  "RMSE":11022.61,
+  "order":"SARIMA(1, 1, 1)(1, 0, 1, 7)",
+  "aic":13879.53,
+  "Selected":false
+ }
+]

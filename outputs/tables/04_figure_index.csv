@@ -1,0 +1,36 @@
+﻿编号,文件名,类别,模板/模型,说明
+fig01,fig01_mom_yoy.png,模板/模型,组合图·环比同比,月度销售额柱 + MoM/YoY 双轴折线
+fig02,fig02_revenue_trend_line.png,模板复现,折线图,日销售额趋势 + MA30 + 峰值标注
+fig03,fig03_monthly_revenue_area.png,模板复现,面积图,月度销售额与订单量双面积图
+fig04,fig04_top_countries_bar.png,模板复现,柱形图,国家销售额 TOP12 + 数据标签
+fig05,fig05_top_products_barh.png,模板复现,条形图,商品销售额 TOP15 横向条形
+fig06,fig06_country_donut.png,模板复现,环形图,国家销售额结构 + 中心总计
+fig07,fig07_monthly_stacked_bar.png,模板复现,堆积柱形图,月度销售额国别构成
+fig08,fig08_category_pct_stacked.png,模板复现,百分比堆积柱形图,月度品类结构占比
+fig09,fig09_aov_frequency_scatter.png,模板复现,散点图,频次 × 金额 + 幂律趋势线
+fig10,fig10_country_bubble.png,模板复现,气泡图,客户数 × 客单价 × 销售额
+fig11,fig11_order_value_histogram.png,模板复现,直方图,订单金额分布 + KDE + 均值/中位数线
+fig12,fig12_boxplot_country.png,模板复现,箱线图,主要国家订单金额分布
+fig13,fig13_weekday_hour_heatmap.png,模板复现,热力图,星期 × 时段销售额
+fig14,fig14_country_radar.png,模板复现,雷达图,TOP5 国家五维指标对比
+fig15,fig15_monthly_waterfall.png,模板复现,瀑布图,近 12 个月销售额增量链路
+fig16,fig16_gauge_target.png,模板复现,仪表盘,年度目标达成率 + 年度对比
+fig17,fig17_calendar_heatmap.png,模板复现,日历热力图,日销售额日历视图
+fig18,fig18_slope_top_countries.png,模板复现,坡度图,TOP8 国家年度规模变化
+fig19,fig19_dual_axis_revenue_orders.png,模板复现,三轴组合图,销售额 + 订单数 + 客单价
+fig20,fig20_rose_category.png,模板复现,玫瑰图,品类销售额南丁格尔玫瑰图
+fig21,fig21_bullet_category.png,模板复现,子弹图,品类实际 vs 目标
+fig22,fig22_violin_order_value.png,模板复现,小提琴图,各季度订单金额分布
+fig23,fig23_treemap_category.png,模板复现,矩形树图,品类销售额面积占比
+fig24,fig24_wordcloud_products.png,模板复现,词云图,热门商品描述词频
+fig25,fig25_moving_average.png,模板/模型,多重折线图,MA7/MA30/MA90 趋势平滑
+fig26,fig26_rfm_scatter_ch8.png,业务模型图,M2 RFM 模型,RFM 八分类气泡矩阵
+fig27,fig27_rfm_segment_bar.png,业务模型图,M2 RFM 模型,八分群客户规模 vs 金额贡献
+fig28,fig28_cohort_retention_heatmap.png,业务模型图,M3 同期群留存,月度同期群留存热力图
+fig29,fig29_pareto_abc.png,业务模型图,M4 帕累托/ABC,TOP30 商品帕累托 + ABC 分界
+fig30,fig30_apriori_rules_scatter.png,业务模型图,M5 关联规则,支持度 × 置信度 × 提升度
+fig31,fig31_apriori_network.png,业务模型图,M5 关联规则,商品共现网络图
+fig32,fig32_bcg_matrix.png,业务模型图,M6 波士顿矩阵,相对份额 × 增速四象限
+fig33,fig33_forecast_ci.png,业务模型图,M7 时间序列预测,点预测 + 95% 置信区间 + 回测
+fig34,fig34_kmeans_clusters.png,业务模型图,M8 K-Means 分群,散点 + 分群画像对比
+fig35,fig35_repurchase_funnel.png,业务模型图,M9 复购漏斗,五级复购转化漏斗

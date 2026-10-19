@@ -1,0 +1,23 @@
+{
+  "best_model": "Holt-Winters",
+  "backtest_window": [
+    "2011-11-01",
+    "2011-11-30"
+  ],
+  "backtest_days": 30,
+  "metrics": {
+    "Holt-Winters": {
+      "MAPE": 34.7,
+      "RMSE": 11169.16,
+      "order": "add-trend(damped) + add-seasonal(7)"
+    },
+    "SARIMA": {
+      "MAPE": 36.33,
+      "RMSE": 11022.61,
+      "order": "SARIMA(1, 1, 1)(1, 0, 1, 7)",
+      "aic": 13879.53
+    }
+  },
+  "forecast_horizon_days": 30,
+  "ci_note": "95% 置信区间；负区间下界按 0 截断（销售额非负）"
+}

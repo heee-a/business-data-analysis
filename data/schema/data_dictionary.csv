@@ -1,0 +1,60 @@
+﻿表名,字段,pandas类型,逻辑类型,取值示例,非空率,说明
+fact_order_items,RowID,int64,-,1,100.00%,-
+fact_order_items,Invoice,str,字符串,489439,100.00%,订单号；以 C 开头为取消单
+fact_order_items,StockCode,str,字符串,22065,100.00%,商品编码
+fact_order_items,Description,str,-,CHRISTMAS PUDDING TRINKET POT,100.00%,-
+fact_order_items,CustomerID,str,字符串,12682.0,100.00%,客户编号；缺失填 GUEST
+fact_order_items,Country,str,字符串,France,100.00%,客户所在国家
+fact_order_items,InvoiceTS,datetime64[us],日期时间,2009-12-01 09:28:00,100.00%,订单时间戳
+fact_order_items,OrderDate,datetime64[us],日期,2009-12-01 00:00:00,100.00%,订单日期（日粒度）
+fact_order_items,Quantity,Int64,整数,12,100.00%,销售数量（退货为负）
+fact_order_items,Price,float64,浮点数,1.45,100.00%,单价（英镑 £）
+fact_order_items,Revenue,float64,浮点数,17.4,100.00%,销售额 = Quantity × Price（£）
+fact_order_items,Year,int32,-,2009,100.00%,-
+fact_order_items,Month,int32,-,12,100.00%,-
+fact_order_items,MonthPeriod,str,-,2009-12,100.00%,-
+fact_order_items,Quarter,str,-,2009Q4,100.00%,-
+fact_order_items,Weekday,int32,-,1,100.00%,-
+fact_order_items,WeekdayName,str,-,Tuesday,100.00%,-
+fact_order_items,IsWeekend,int64,-,0,100.00%,-
+fact_order_items,Hour,int32,-,9,100.00%,-
+fact_order_items,Week,int64,-,49,100.00%,-
+fact_order_items,ISOYear,int64,-,2009,100.00%,-
+fact_order_items,IsGuest,int64,-,0,100.00%,-
+fact_order_items,ProductCategory,str,字符串,Christmas & Seasonal,100.00%,派生品类（关键词规则映射）
+dim_orders,Invoice,str,字符串,489439,100.00%,订单号；以 C 开头为取消单
+dim_orders,InvoiceTS,datetime64[us],日期时间,2009-12-01 09:28:00,100.00%,订单时间戳
+dim_orders,OrderDate,datetime64[us],日期,2009-12-01 00:00:00,100.00%,订单日期（日粒度）
+dim_orders,CustomerID,str,字符串,12682.0,100.00%,客户编号；缺失填 GUEST
+dim_orders,Country,str,字符串,France,100.00%,客户所在国家
+dim_orders,ProductCategory,str,字符串,Stationery & Wrap,100.00%,派生品类（关键词规则映射）
+dim_orders,LineCount,int64,-,18,100.00%,-
+dim_orders,TotalQuantity,Int64,-,216,100.00%,-
+dim_orders,Revenue,float64,浮点数,372.3,100.00%,销售额 = Quantity × Price（£）
+dim_customers,CustomerID,str,字符串,12346.0,100.00%,客户编号；缺失填 GUEST
+dim_customers,Country,str,字符串,United Kingdom,100.00%,客户所在国家
+dim_customers,FirstOrderDate,datetime64[us],-,2009-12-14 00:00:00,100.00%,-
+dim_customers,LastOrderDate,datetime64[us],-,2010-03-02 00:00:00,100.00%,-
+dim_customers,OrderCount,int64,-,5,100.00%,-
+dim_customers,LineCount,int64,-,9,100.00%,-
+dim_customers,TotalQuantity,Int64,-,30,100.00%,-
+dim_customers,Monetary,float64,-,139.55,100.00%,-
+dim_customers,MainCategory,str,-,Garden & Outdoor,100.00%,-
+dim_customers,AOV,float64,-,27.91,100.00%,-
+dim_products,StockCode,str,字符串,10002,100.00%,商品编码
+dim_products,Description,str,-,INFLATABLE POLITICAL GLOBE,100.00%,-
+dim_products,ProductCategory,str,字符串,Other Household,100.00%,派生品类（关键词规则映射）
+dim_products,UnitPriceMean,float64,-,0.9657,100.00%,-
+dim_products,UnitPriceStd,float64,-,0.2978,95.90%,-
+dim_products,TimesSold,Int64,-,111,100.00%,-
+dim_products,TotalQuantity,Int64,-,2769,100.00%,-
+dim_products,Revenue,float64,浮点数,2201.86,100.00%,销售额 = Quantity × Price（£）
+dim_date,Date,str,-,2009-12-01,100.00%,-
+dim_date,Year,int32,-,2009,100.00%,-
+dim_date,Month,int32,-,12,100.00%,-
+dim_date,MonthPeriod,str,-,2009-12,100.00%,-
+dim_date,Quarter,str,-,2009Q4,100.00%,-
+dim_date,Weekday,int32,-,1,100.00%,-
+dim_date,WeekdayName,str,-,Tuesday,100.00%,-
+dim_date,IsWeekend,int64,-,0,100.00%,-
+dim_date,MonthName,str,-,Dec,100.00%,-

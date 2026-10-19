@@ -1,0 +1,16 @@
+[
+ {
+  "ValueTier":"一般价值层(Low)",
+  "Customers":1863,
+  "Monetary":462459.09,
+  "CustomerShare":50.0,
+  "RevenueShare":9.34
+ },
+ {
+  "ValueTier":"高价值层(High)",
+  "Customers":1863,
+  "Monetary":4491497.6799999997,
+  "CustomerShare":50.0,
+  "RevenueShare":90.66
+ }
+]

@@ -1,0 +1,10 @@
+﻿column,dtype,non_null,missing,missing_pct,n_unique,sample_value
+Invoice,object,1067371,0,0.0,53628,489434
+StockCode,object,1067371,0,0.0,5305,85048
+Description,object,1062989,4382,0.411,5698,15CM CHRISTMAS GLASS BALL 20 LIGHTS
+Quantity,int64,1067371,0,0.0,1057,12
+InvoiceDate,datetime64[us],1067371,0,0.0,47635,2009-12-01 07:45:00
+Price,float64,1067371,0,0.0,2807,6.95
+Customer ID,float64,824364,243007,22.767,5942,13085.0
+Country,str,1067371,0,0.0,43,United Kingdom
+SourceSheet,str,1067371,0,0.0,2,2009-2010

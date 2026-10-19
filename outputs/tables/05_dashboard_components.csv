@@ -1,0 +1,21 @@
+﻿组件,标题,栅格宽度
+tab1_trend,月度销售额趋势,12
+tab1_dual,销售额 × 订单数双轴,7
+tab1_country_bar,TOP10 国家销售额,5
+tab1_timeline,月度国家排名时间轴,12
+tab1_heatmap,星期时段热力图,12
+tab2_rfm_pie,RFM 金额贡献玫瑰图,6
+tab2_rfm_bar,RFM 客群规模与贡献,6
+tab2_cohort,同期群留存曲线,7
+tab2_funnel,复购漏斗,5
+tab2_kmeans,K-Means 分群画像,12
+tab3_top_products,TOP10 热销商品,7
+tab3_cat_pie,品类结构环形图,5
+tab3_wordcloud,热销商品词云,6
+tab3_abc,ABC 分类贡献,6
+tab3_rules,关联规则 Lift 排行,12
+tab3_table,商品明细表,12
+tab4_forecast,预测与置信区间,12
+tab4_backtest,回测对比,12
+tab4_yoy,同比增速复盘,12
+tab4_bcg,波士顿矩阵,12

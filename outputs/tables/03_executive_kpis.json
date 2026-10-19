@@ -1,0 +1,32 @@
+{
+  "n_rows": 302786,
+  "n_invoices": 11875,
+  "n_customers": 3726,
+  "n_products": 4507,
+  "n_countries": 36,
+  "total_revenue_gbp": 5676066.77,
+  "avg_order_value_gbp": 488.22,
+  "date_range": [
+    "2009-12-01",
+    "2011-11-30"
+  ],
+  "top_country": "United Kingdom",
+  "top_country_share": 84.96,
+  "top_category": "Other Household",
+  "abc_counts": {
+    "C": 2593,
+    "B": 1334,
+    "A": 1135
+  },
+  "abc_revenue_share": {
+    "A": 80.0,
+    "B": 15.0,
+    "C": 5.0
+  },
+  "repeat_purchase_rate": 52.74,
+  "n_apriori_rules": 3866,
+  "best_forecast_model": "Holt-Winters",
+  "cohort_m1_retention": 10.65,
+  "cohort_m6_retention": 9.72,
+  "top1_customer_value_share": 28.16
+}

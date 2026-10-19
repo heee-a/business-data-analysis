@@ -1,0 +1,90 @@
+[
+ {
+  "ProductCategory":"Other Household",
+  "Revenue":1424031.1299999999,
+  "Orders":9494,
+  "Items":749997,
+  "SKUs":1236,
+  "RevenueShare":25.09
+ },
+ {
+  "ProductCategory":"Kitchen & Dining",
+  "Revenue":1111373.8600000001,
+  "Orders":8323,
+  "Items":554319,
+  "SKUs":631,
+  "RevenueShare":19.58
+ },
+ {
+  "ProductCategory":"Bags & Storage",
+  "Revenue":937040.79,
+  "Orders":7425,
+  "Items":505126,
+  "SKUs":364,
+  "RevenueShare":16.51
+ },
+ {
+  "ProductCategory":"Home Decor & Lighting",
+  "Revenue":810651.24,
+  "Orders":7566,
+  "Items":433238,
+  "SKUs":635,
+  "RevenueShare":14.28
+ },
+ {
+  "ProductCategory":"Stationery & Wrap",
+  "Revenue":474709.96,
+  "Orders":6942,
+  "Items":463132,
+  "SKUs":548,
+  "RevenueShare":8.36
+ },
+ {
+  "ProductCategory":"Christmas & Seasonal",
+  "Revenue":291077.34,
+  "Orders":3409,
+  "Items":192959,
+  "SKUs":273,
+  "RevenueShare":5.13
+ },
+ {
+  "ProductCategory":"Garden & Outdoor",
+  "Revenue":208562.42,
+  "Orders":4425,
+  "Items":96112,
+  "SKUs":262,
+  "RevenueShare":3.67
+ },
+ {
+  "ProductCategory":"Party & Occasion",
+  "Revenue":150425.54,
+  "Orders":3229,
+  "Items":53244,
+  "SKUs":66,
+  "RevenueShare":2.65
+ },
+ {
+  "ProductCategory":"Toys & Games",
+  "Revenue":122816.05,
+  "Orders":3021,
+  "Items":58529,
+  "SKUs":107,
+  "RevenueShare":2.16
+ },
+ {
+  "ProductCategory":"Jewellery & Accessory",
+  "Revenue":112551.41,
+  "Orders":2965,
+  "Items":95177,
+  "SKUs":379,
+  "RevenueShare":1.98
+ },
+ {
+  "ProductCategory":"Bath & Fragrance",
+  "Revenue":32827.03,
+  "Orders":1479,
+  "Items":21969,
+  "SKUs":35,
+  "RevenueShare":0.58
+ }
+]

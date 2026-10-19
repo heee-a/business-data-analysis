@@ -1,0 +1,62 @@
+# =============================================================================
+# GitHub Pages 自动部署
+# -----------------------------------------------------------------------------
+# 触发：推送到 main 分支，或在 Actions 页面手动触发
+# 产物：_site/
+#   ├── index.html                    项目落地页（pages/index.html）
+#   ├── dashboard/dashboard_dark.html Pyecharts 交互大屏
+#   └── figures/fig01 ~ fig35.png     35 张 200dpi 图表（图廊缩略 + 大图）
+# 说明：落地页与大屏所需的静态资源由仓库中已生成的 outputs/ 直接拷贝，
+#       不在 CI 中重跑数据流水线（避免每次推送都消耗数分钟与下载 45MB 源数据）。
+# =============================================================================
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# 只允许一个并发部署，且排队等待而非取消（保证 Pages 内容完整）
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 组装静态站点
+        run: |
+          mkdir -p _site/figures _site/dashboard
+          cp pages/index.html _site/index.html
+          cp outputs/dashboard/dashboard_dark.html _site/dashboard/
+          cp outputs/figures/*.png _site/figures/
+          # 关键结果表一并发布，便于在线核对
+          mkdir -p _site/tables
+          cp outputs/tables/03_executive_kpis.json _site/tables/ || true
+          echo "站点文件数：$(find _site -type f | wc -l)"
+          du -sh _site
+
+      - name: 上传 Pages 产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 部署到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

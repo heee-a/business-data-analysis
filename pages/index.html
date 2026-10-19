@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>基于 UCI Online Retail II 的零售商业数据分析 | 期末大作业</title>
+<meta name="description" content="合规取数 · 数据治理 · 8 类商业模型 · 35 张 Python 图表 · 20 组件交互大屏 —— 商业数据分析期末大作业">
+<style>
+:root{
+  --bg:#0b1020; --bg2:#111834; --card:#151d3b; --line:#243056;
+  --txt:#e8ecf8; --dim:#9aa7c7; --acc:#4fc3f7; --acc2:#f9a825;
+  --good:#ef5350; --bad:#26a69a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);
+  font-family:"PingFang SC","Microsoft YaHei","Segoe UI",Roboto,sans-serif;
+  line-height:1.7;-webkit-font-smoothing:antialiased}
+a{color:var(--acc);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+
+header{background:linear-gradient(160deg,#0e1633 0%,#131c40 55%,#0b1020 100%);
+  border-bottom:1px solid var(--line);padding:52px 0 40px;position:relative;overflow:hidden}
+header::after{content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at 78% 12%,rgba(79,195,247,.16),transparent 55%),
+             radial-gradient(circle at 12% 88%,rgba(249,168,37,.10),transparent 50%)}
+header .wrap{position:relative;z-index:1}
+.tag{display:inline-block;font-size:12px;letter-spacing:2px;color:var(--acc);
+  border:1px solid rgba(79,195,247,.4);border-radius:20px;padding:4px 14px;margin-bottom:16px}
+h1{font-size:34px;line-height:1.35;font-weight:800;margin-bottom:12px}
+h1 span{color:var(--acc)}
+.sub{color:var(--dim);font-size:15px;max-width:760px}
+.meta{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:12.5px;background:rgba(79,195,247,.10);border:1px solid rgba(79,195,247,.28);
+  color:#bfe6fb;border-radius:6px;padding:4px 11px}
+.chip.g{background:rgba(239,83,80,.10);border-color:rgba(239,83,80,.3);color:#ffc9c7}
+.chip.y{background:rgba(249,168,37,.10);border-color:rgba(249,168,37,.3);color:#ffe0a3}
+.btnrow{margin-top:24px;display:flex;flex-wrap:wrap;gap:12px}
+.btn{display:inline-block;padding:10px 22px;border-radius:8px;font-size:14px;font-weight:600;
+  transition:.18s}
+.btn.p{background:var(--acc);color:#062033}
+.btn.p:hover{background:#7ad4fa;text-decoration:none}
+.btn.s{border:1px solid var(--line);color:var(--txt);background:rgba(255,255,255,.03)}
+.btn.s:hover{background:rgba(255,255,255,.08);text-decoration:none}
+
+section{padding:44px 0;border-bottom:1px solid var(--line)}
+h2{font-size:21px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+h2::before{content:"";width:4px;height:20px;background:var(--acc);border-radius:2px}
+.lead{color:var(--dim);font-size:14px;margin-bottom:22px}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:14px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;
+  transition:.2s}
+.kpi:hover{transform:translateY(-3px);border-color:var(--acc)}
+.kpi .v{font-size:27px;font-weight:800;color:var(--acc);line-height:1.2}
+.kpi .v.g{color:var(--good)} .kpi .v.y{color:var(--acc2)}
+.kpi .l{font-size:13px;color:var(--txt);margin-top:6px}
+.kpi .n{font-size:11.5px;color:var(--dim);margin-top:3px}
+
+.dash-box{background:var(--card);border:1px solid var(--line);border-radius:12px;
+  overflow:hidden}
+.dash-bar{display:flex;justify-content:space-between;align-items:center;
+  padding:11px 16px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--line);
+  font-size:13px;color:var(--dim)}
+iframe{width:100%;height:760px;border:0;display:block;background:#0b1020}
+
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.tab{font-size:13px;padding:6px 15px;border-radius:20px;border:1px solid var(--line);
+  background:rgba(255,255,255,.03);color:var(--dim);cursor:pointer;transition:.15s}
+.tab:hover{color:var(--txt)}
+.tab.on{background:var(--acc);color:#062033;border-color:var(--acc);font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:14px}
+.cell{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;
+  transition:.2s}
+.cell:hover{transform:translateY(-3px);border-color:var(--acc);box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.cell img{width:100%;height:186px;object-fit:cover;display:block;background:#0e1633;cursor:zoom-in}
+.cell .cap{padding:10px 12px;font-size:12.5px;color:var(--dim);line-height:1.5}
+.cell .cap b{color:var(--txt);font-size:13px;display:block;margin-bottom:3px}
+
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px;
+  background:var(--card);border-radius:10px;overflow:hidden}
+.tbl th{background:rgba(79,195,247,.12);color:#bfe6fb;text-align:left;padding:11px 13px;
+  font-weight:600;border-bottom:1px solid var(--line)}
+.tbl td{padding:10px 13px;border-bottom:1px solid rgba(36,48,86,.6);color:var(--dim)}
+.tbl td:first-child{color:var(--txt);font-weight:600}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tr:hover td{background:rgba(255,255,255,.025)}
+
+pre{background:#0a0f22;border:1px solid var(--line);border-radius:10px;padding:16px 18px;
+  overflow-x:auto;font-family:Consolas,"Courier New",monospace;font-size:13px;color:#c7d2f0}
+pre .c{color:#5d6b93} pre .k{color:var(--acc)}
+
+#lb{position:fixed;inset:0;background:rgba(5,8,18,.95);display:none;z-index:99;
+  align-items:center;justify-content:center;padding:26px;cursor:zoom-out}
+#lb.on{display:flex}
+#lb img{max-width:96vw;max-height:92vh;border-radius:8px;box-shadow:0 16px 60px rgba(0,0,0,.7)}
+#lb .x{position:absolute;top:18px;right:26px;font-size:30px;color:var(--dim);cursor:pointer}
+#lb .t{position:absolute;bottom:20px;left:0;right:0;text-align:center;color:var(--dim);font-size:13px}
+
+footer{padding:34px 0 46px;color:var(--dim);font-size:13px}
+footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10px;
+  padding:16px 18px;margin-top:14px;line-height:1.75}
+@media(max-width:640px){h1{font-size:25px}iframe{height:560px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="tag">《商业数据分析》期末大作业 · 嘉兴大学 数据科学学院 · 2026 秋</div>
+    <h1>基于 <span>UCI Online Retail II</span> 的<br>跨国零售用户价值与品类结构分析</h1>
+    <p class="sub">
+      以 UCI Machine Learning Repository 公开数据集（#502，CC BY 4.0）为对象，
+      完成「合规取数 → 清洗治理 → 8 类商业模型 → 35 张 Python 图表 → 20 组件交互大屏 → 商业洞察」的端到端流程。
+      全流程零爬虫、零 BI 软件，随机种子固定为 2026，克隆后一条命令即可完整复现。
+    </p>
+    <div class="meta">
+      <span class="chip">数据源：UCI #502</span>
+      <span class="chip">白名单取数 · 非爬虫</span>
+      <span class="chip">CC BY 4.0</span>
+      <span class="chip y">30.28 万行有效明细</span>
+      <span class="chip g">随机种子 2026 · 可复现</span>
+      <span class="chip">全 Python 实现</span>
+    </div>
+    <div class="btnrow">
+      <a class="btn p" href="dashboard/dashboard_dark.html" target="_blank">打开交互式大屏</a>
+      <a class="btn s" href="https://github.com/heee-a/business-data-analysis" target="_blank">查看源码仓库</a>
+      <a class="btn s" href="#gallery">浏览 35 张图表</a>
+      <a class="btn s" href="#model">模型与参数</a>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>核心指标概览</h2>
+    <p class="lead">统计口径：清洗后有效明细 302,786 行，分析窗口 2009-12-01 ~ 2011-11-30（剔除不完整的末月）。</p>
+    <div class="kpis">
+      <div class="kpi"><div class="v">£567.6 万</div><div class="l">总销售额</div><div class="n">11,875 张发票 · 36 国</div></div>
+      <div class="kpi"><div class="v">£488.22</div><div class="l">平均客单价</div><div class="n">3,726 位注册客户</div></div>
+      <div class="kpi"><div class="v g">84.96%</div><div class="l">英国市场占比</div><div class="n">市场集中度过高</div></div>
+      <div class="kpi"><div class="v y">80.0%</div><div class="l">A 类 SKU 营收贡献</div><div class="n">仅 1,135 个（22.42%）</div></div>
+      <div class="kpi"><div class="v">10.65%</div><div class="l">次月留存率</div><div class="n">此后稳定 9%~12%</div></div>
+      <div class="kpi"><div class="v">52.74%</div><div class="l">二次购买转化率</div><div class="n">忠诚客户 535 位（14.36%）</div></div>
+      <div class="kpi"><div class="v">3,866</div><div class="l">有效关联规则</div><div class="n">最强提升度 16.11</div></div>
+      <div class="kpi"><div class="v y">+40.61%</div><div class="l">圣诞品类同比增速</div><div class="n">派对品类 +50.52%</div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>交互式商业分析大屏</h2>
+    <p class="lead">Pyecharts 生成 · 暗色主题 · 4 个标签页 · 20 个联动组件（KPI 卡 / 趋势图 / 结构图 / 热力图 / 漏斗 / 词云 / 明细表 / 时间轴筛选器）。</p>
+    <div class="dash-box">
+      <div class="dash-bar">
+        <span>销售总览　客户洞察　商品结构　预测复盘</span>
+        <a href="dashboard/dashboard_dark.html" target="_blank">全屏打开 →</a>
+      </div>
+      <iframe src="dashboard/dashboard_dark.html" loading="lazy" title="交互式商业分析大屏"></iframe>
+    </div>
+  </div>
+</section>
+
+<section id="gallery">
+  <div class="wrap">
+    <h2>图表作品（35 张，200dpi，全 Python 生成）</h2>
+    <p class="lead">对照《Excel 数据可视化——从图表到数据大屏》复现 23 种模板图型 + 10 张业务模型图。点击任意图表可放大查看。</p>
+    <div class="tabs" id="tabs">
+      <span class="tab on" data-cat="all">全部 35</span>
+      <span class="tab" data-cat="tpl">模板复现 23</span>
+      <span class="tab" data-cat="model">业务模型 10</span>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<section id="model">
+  <div class="wrap">
+    <h2>商业分析模型与参数依据</h2>
+    <p class="lead">8 类模型覆盖「卖什么 / 卖给谁 / 接下来会怎样」三大决策场景，每个参数与阈值均给出业务依据。</p>
+    <table class="tbl">
+      <thead><tr><th>#</th><th>模型</th><th>关键参数与业务依据</th><th>核心图</th></tr></thead>
+      <tbody>
+        <tr><td>M1</td><td>环比/同比 + 移动平均</td><td>MA7 / MA30 / MA90 多周期平滑；剔除不完整末月（2011-12 仅 9 天）</td><td>fig01 · fig25</td></tr>
+        <tr><td>M2</td><td>RFM 八分类</td><td><b>中位数切分</b>（分布右偏，抗极值）：R = 203 天，F = 2 次，M = £488.69</td><td>fig26 · fig27</td></tr>
+        <tr><td>M3</td><td>同期群留存</td><td><b>月度粒度</b>（周太碎、季太粗）；保留率矩阵对角线 = 100% 用于验证计算</td><td>fig28</td></tr>
+        <tr><td>M4</td><td>帕累托 / ABC 分类</td><td>A = 累计 80%，B = 累计 95%；销售额口径</td><td>fig29</td></tr>
+        <tr><td>M5</td><td>Apriori 关联规则</td><td>support ≥ <b>0.01</b>（有铺货价值）/ lift &gt; <b>1.0</b>（正向关联）/ conf ≥ <b>0.15</b>（推荐可命中）</td><td>fig30 · fig31</td></tr>
+        <tr><td>M6</td><td>波士顿矩阵</td><td>相对份额阈值 1.0（BCG 经典分界）；增速阈值取大盘同比 <b>7.62%</b></td><td>fig32</td></tr>
+        <tr><td>M7</td><td>SARIMA / Holt-Winters</td><td>周周期 7 天；<b>30 天留出回测</b>；输出点预测 + <b>95% 置信区间</b></td><td>fig33</td></tr>
+        <tr><td>M8</td><td>K-Means 用户分群</td><td>log1p + 标准化；K 由<b>轮廓系数</b>确定（K = 2，0.4271）；seed = 2026</td><td>fig34</td></tr>
+        <tr><td>M9</td><td>复购漏斗</td><td>五级转化，定位「第 2 次购买」瓶颈</td><td>fig35</td></tr>
+      </tbody>
+    </table>
+    <p class="lead" style="margin-top:22px">预测回测结果（测试集 30 天）</p>
+    <table class="tbl">
+      <thead><tr><th>模型</th><th>阶数</th><th>MAPE</th><th>RMSE</th><th>AIC</th><th>选用</th></tr></thead>
+      <tbody>
+        <tr><td>Holt-Winters</td><td>加法趋势(阻尼) + 加法季节(7)</td><td>34.70%</td><td>£11,169</td><td>—</td><td>选用</td></tr>
+        <tr><td>SARIMA</td><td>(1,1,1)(1,0,1,7)</td><td>36.33%</td><td>£11,023</td><td>13,879.5</td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>一键复现</h2>
+    <p class="lead">随机种子在 <code>scripts/utils/config.py</code> 中固定为 2026，任何人克隆后均可得到完全一致的结果。</p>
+    <pre><span class="c"># 1. 克隆仓库</span>
+<span class="k">git clone</span> https://github.com/heee-a/business-data-analysis.git
+<span class="k">cd</span> business-data-analysis
+
+<span class="c"># 2. 安装依赖（建议 Python 3.11+ 虚拟环境）</span>
+<span class="k">pip install</span> -r requirements.txt
+
+<span class="c"># 3. 一键复现全部结果（6 个阶段，约 7 分钟）</span>
+<span class="k">python</span> run_all.py
+
+<span class="c"># 常用参数：--list 查看阶段 | --only 4 5 仅出图 | --skip 1 2 跳过取数与清洗</span></pre>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="lic">
+      <b style="color:var(--txt)">数据来源合规声明</b><br>
+      数据集：<b>Online Retail II</b>（UCI Machine Learning Repository，#502，DOI: 10.24432/C60H6D）·
+      官方页面：<a href="https://archive.ics.uci.edu/dataset/502/online+retail+ii" target="_blank">archive.ics.uci.edu/dataset/502/online+retail+ii</a><br>
+      获取方式：官方一次性下载文件（ZIP）— 课程附件 A 白名单方式 ·
+      <b style="color:var(--good)">全程未使用任何爬虫技术</b>（无 Scrapy / Selenium / requests+网页解析 / 模拟登录）· 获取日期：2026-10-19<br>
+      授权：数据遵循 <b>CC BY 4.0</b>（署名即可自由使用、转换与再分发）·
+      抽样：按发票整单随机 30%，随机种子 <b>2026</b>（保护购物篮完整性）<br>
+      全部图表与大屏均由 Python 代码生成，<b>未使用 Power BI / Tableau / Fine BI 等 BI 软件</b>，亦无 Excel 图表截图替代。
+    </div>
+    <p style="margin-top:18px">
+      嘉兴大学 数据科学学院 · 2026 年秋季学期 ·
+      完整论文见仓库 <code>docs/</code> 目录（Word + PDF）·
+      <a href="https://github.com/heee-a/business-data-analysis" target="_blank">GitHub 仓库</a>
+    </p>
+  </div>
+</footer>
+
+<div id="lb"><span class="x">&times;</span><img id="lbi" src="" alt=""><div class="t" id="lbt"></div></div>
+
+<script>
+const FIGS = [
+["fig01","fig01_mom_yoy","月度销售额环比/同比组合图","tpl"],
+["fig02","fig02_revenue_trend_line","日销售额趋势 + 移动平均","tpl"],
+["fig03","fig03_monthly_revenue_area","月度销售额与订单量面积图","tpl"],
+["fig04","fig04_top_countries_bar","国家销售额 TOP12 柱形图","tpl"],
+["fig05","fig05_top_products_barh","商品销售额 TOP15 条形图","tpl"],
+["fig06","fig06_country_donut","国家销售额环形图","tpl"],
+["fig07","fig07_monthly_stacked_bar","月度销售额国别堆积柱形图","tpl"],
+["fig08","fig08_category_pct_stacked","月度品类百分比堆积柱形图","tpl"],
+["fig09","fig09_aov_frequency_scatter","频次 × 金额散点图","tpl"],
+["fig10","fig10_country_bubble","客户数 × 客单价气泡图","tpl"],
+["fig11","fig11_order_value_histogram","订单金额直方图 + KDE","tpl"],
+["fig12","fig12_boxplot_country","主要国家订单金额箱线图","tpl"],
+["fig13","fig13_weekday_hour_heatmap","星期 × 时段销售额热力图","tpl"],
+["fig14","fig14_country_radar","TOP5 国家五维雷达图","tpl"],
+["fig15","fig15_monthly_waterfall","近 12 个月销售额瀑布图","tpl"],
+["fig16","fig16_gauge_target","年度目标达成率仪表盘","tpl"],
+["fig17","fig17_calendar_heatmap","日销售额日历热力图","tpl"],
+["fig18","fig18_slope_top_countries","TOP8 国家年度变化坡度图","tpl"],
+["fig19","fig19_dual_axis_revenue_orders","销售额 × 订单数 × 客单价三轴图","tpl"],
+["fig20","fig20_rose_category","品类销售额南丁格尔玫瑰图","tpl"],
+["fig21","fig21_bullet_category","品类实际 vs 目标子弹图","tpl"],
+["fig22","fig22_violin_order_value","各季度订单金额小提琴图","tpl"],
+["fig23","fig23_treemap_category","品类销售额矩形树图","tpl"],
+["fig24","fig24_wordcloud_products","热门商品描述词云图","tpl"],
+["fig25","fig25_moving_average","MA7 / MA30 / MA90 多重折线图","model"],
+["fig26","fig26_rfm_scatter_ch8","RFM 八分类客户价值矩阵","model"],
+["fig27","fig27_rfm_segment_bar","RFM 八分群规模与贡献","model"],
+["fig28","fig28_cohort_retention_heatmap","月度同期群留存热力图","model"],
+["fig29","fig29_pareto_abc","TOP30 商品帕累托与 ABC 分界","model"],
+["fig30","fig30_apriori_rules_scatter","关联规则支持度×置信度×提升度","model"],
+["fig31","fig31_apriori_network","商品共现网络图","model"],
+["fig32","fig32_bcg_matrix","品类波士顿矩阵四象限","model"],
+["fig33","fig33_forecast_ci","日销售额预测 + 95% 置信区间 + 回测","model"],
+["fig34","fig34_kmeans_clusters","K-Means 客户分群画像","model"],
+["fig35","fig35_repurchase_funnel","五级复购转化漏斗","model"]
+];
+
+const grid = document.getElementById('grid');
+function render(cat){
+  grid.innerHTML = FIGS.filter(function(f){ return cat === 'all' || f[3] === cat; }).map(function(f){
+    return '<div class="cell">' +
+      '<img src="figures/' + f[1] + '.png" alt="' + f[2] + '" loading="lazy"' +
+      ' data-src="figures/' + f[1] + '.png" data-t="' + f[0] + '　' + f[2] + '">' +
+      '<div class="cap"><b>' + f[0] + '　' + f[1].replace(/^fig\d\d_/, '') + '</b>' + f[2] + '</div>' +
+      '</div>';
+  }).join('');
+  grid.querySelectorAll('img').forEach(function(im){
+    im.onclick = function(){
+      document.getElementById('lbi').src = im.dataset.src;
+      document.getElementById('lbt').textContent = im.dataset.t;
+      document.getElementById('lb').classList.add('on');
+    };
+  });
+}
+render('all');
+document.getElementById('tabs').onclick = function(e){
+  if (!e.target.classList.contains('tab')) return;
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('on'); });
+  e.target.classList.add('on');
+  render(e.target.dataset.cat);
+};
+var lb = document.getElementById('lb');
+lb.onclick = function(){ lb.classList.remove('on'); };
+document.onkeydown = function(e){ if (e.key === 'Escape') lb.classList.remove('on'); };
+</script>
+</body>
+</html>

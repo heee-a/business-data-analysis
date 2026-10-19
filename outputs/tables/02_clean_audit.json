@@ -1,0 +1,32 @@
+{
+  "started_at": "2026-10-19 13:02:24",
+  "rows_raw": 315722,
+  "duplicates_removed": 3674,
+  "drop_unparsable_rows": 0,
+  "desc_missing_filled": 1267,
+  "customer_missing_marked_guest": 70954,
+  "customer_missing_pct": 22.738,
+  "outlier_rule_counts": {
+    "R1_cancelled_orders": 6261,
+    "R3_nonproduct_charges": 1311,
+    "R2_R4_invalid_or_extreme": 1690
+  },
+  "rows_after_outlier_removal": 302786,
+  "order_header_conflicts": {
+    "invoice_with_multi_date": 0,
+    "invoice_with_multi_customer": 0,
+    "invoice_with_multi_country": 0
+  },
+  "rows_valid": 302786,
+  "retention_rate": 0.959,
+  "date_range": [
+    "2009-12-01",
+    "2011-12-09"
+  ],
+  "n_customers": 3763,
+  "n_products": 4507,
+  "n_invoices": 11875,
+  "n_countries": 36,
+  "total_revenue_gbp": 5817199.71,
+  "finished_at": "2026-10-19 13:02:58"
+}

@@ -1,0 +1,27 @@
+[
+ {
+  "K":2,
+  "Inertia":6235.2,
+  "Silhouette":0.4271
+ },
+ {
+  "K":3,
+  "Inertia":4726.3,
+  "Silhouette":0.3823
+ },
+ {
+  "K":4,
+  "Inertia":3626.1,
+  "Silhouette":0.3632
+ },
+ {
+  "K":5,
+  "Inertia":3142.6,
+  "Silhouette":0.336
+ },
+ {
+  "K":6,
+  "Inertia":2728.0,
+  "Silhouette":0.298
+ }
+]

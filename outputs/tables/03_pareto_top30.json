@@ -1,0 +1,302 @@
+[
+ {
+  "Rank":1,
+  "StockCode":"22423",
+  "Description":"REGENCY CAKESTAND 3 TIER",
+  "ProductCategory":"Kitchen & Dining",
+  "Revenue":100732.33,
+  "RevenueShare":1.7747,
+  "CumulativeShare":1.77,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":2,
+  "StockCode":"85123A",
+  "Description":"WHITE HANGING HEART T-LIGHT HOLDER",
+  "ProductCategory":"Home Decor & Lighting",
+  "Revenue":82708.98,
+  "RevenueShare":1.4572,
+  "CumulativeShare":3.23,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":3,
+  "StockCode":"85099B",
+  "Description":"JUMBO BAG RED RETROSPOT",
+  "ProductCategory":"Bags & Storage",
+  "Revenue":51643.81,
+  "RevenueShare":0.9099,
+  "CumulativeShare":4.14,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":4,
+  "StockCode":"47566",
+  "Description":"PARTY BUNTING",
+  "ProductCategory":"Party & Occasion",
+  "Revenue":43022.08,
+  "RevenueShare":0.758,
+  "CumulativeShare":4.9,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":5,
+  "StockCode":"84879",
+  "Description":"ASSORTED COLOUR BIRD ORNAMENT",
+  "ProductCategory":"Home Decor & Lighting",
+  "Revenue":37021.37,
+  "RevenueShare":0.6522,
+  "CumulativeShare":5.55,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":6,
+  "StockCode":"22086",
+  "Description":"PAPER CHAIN KIT 50'S CHRISTMAS",
+  "ProductCategory":"Christmas & Seasonal",
+  "Revenue":29978.8,
+  "RevenueShare":0.5282,
+  "CumulativeShare":6.08,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":7,
+  "StockCode":"85099F",
+  "Description":"JUMBO BAG STRAWBERRY",
+  "ProductCategory":"Bags & Storage",
+  "Revenue":24146.08,
+  "RevenueShare":0.4254,
+  "CumulativeShare":6.51,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":8,
+  "StockCode":"79321",
+  "Description":"CHILLI LIGHTS",
+  "ProductCategory":"Home Decor & Lighting",
+  "Revenue":24018.49,
+  "RevenueShare":0.4232,
+  "CumulativeShare":6.93,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":9,
+  "StockCode":"84347",
+  "Description":"ROTATING SILVER ANGELS T-LIGHT HLDR",
+  "ProductCategory":"Home Decor & Lighting",
+  "Revenue":23511.86,
+  "RevenueShare":0.4142,
+  "CumulativeShare":7.34,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":10,
+  "StockCode":"22470",
+  "Description":"HEART OF WICKER LARGE",
+  "ProductCategory":"Other Household",
+  "Revenue":22804.9,
+  "RevenueShare":0.4018,
+  "CumulativeShare":7.74,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":11,
+  "StockCode":"21137",
+  "Description":"BLACK RECORD COVER FRAME",
+  "ProductCategory":"Home Decor & Lighting",
+  "Revenue":22703.16,
+  "RevenueShare":0.4,
+  "CumulativeShare":8.14,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":12,
+  "StockCode":"22469",
+  "Description":"HEART OF WICKER SMALL",
+  "ProductCategory":"Other Household",
+  "Revenue":19455.53,
+  "RevenueShare":0.3428,
+  "CumulativeShare":8.49,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":13,
+  "StockCode":"22112",
+  "Description":"CHOCOLATE HOT WATER BOTTLE",
+  "ProductCategory":"Kitchen & Dining",
+  "Revenue":19174.46,
+  "RevenueShare":0.3378,
+  "CumulativeShare":8.83,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":14,
+  "StockCode":"22114",
+  "Description":"HOT WATER BOTTLE TEA AND SYMPATHY",
+  "ProductCategory":"Kitchen & Dining",
+  "Revenue":18879.49,
+  "RevenueShare":0.3326,
+  "CumulativeShare":9.16,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":15,
+  "StockCode":"21621",
+  "Description":"VINTAGE UNION JACK BUNTING",
+  "ProductCategory":"Stationery & Wrap",
+  "Revenue":18839.14,
+  "RevenueShare":0.3319,
+  "CumulativeShare":9.49,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":16,
+  "StockCode":"85099C",
+  "Description":"JUMBO  BAG BAROQUE BLACK WHITE",
+  "ProductCategory":"Bags & Storage",
+  "Revenue":18371.76,
+  "RevenueShare":0.3237,
+  "CumulativeShare":9.81,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":17,
+  "StockCode":"15056N",
+  "Description":"EDWARDIAN PARASOL NATURAL",
+  "ProductCategory":"Garden & Outdoor",
+  "Revenue":18300.92,
+  "RevenueShare":0.3224,
+  "CumulativeShare":10.14,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":18,
+  "StockCode":"23084",
+  "Description":"RABBIT NIGHT LIGHT",
+  "ProductCategory":"Home Decor & Lighting",
+  "Revenue":17705.02,
+  "RevenueShare":0.3119,
+  "CumulativeShare":10.45,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":19,
+  "StockCode":"22328",
+  "Description":"ROUND SNACK BOXES SET OF 4 FRUITS",
+  "ProductCategory":"Bags & Storage",
+  "Revenue":17561.02,
+  "RevenueShare":0.3094,
+  "CumulativeShare":10.76,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":20,
+  "StockCode":"21931",
+  "Description":"JUMBO STORAGE BAG SUKI",
+  "ProductCategory":"Bags & Storage",
+  "Revenue":17514.24,
+  "RevenueShare":0.3086,
+  "CumulativeShare":11.07,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":21,
+  "StockCode":"22910",
+  "Description":"PAPER CHAIN KIT VINTAGE CHRISTMAS",
+  "ProductCategory":"Christmas & Seasonal",
+  "Revenue":17479.48,
+  "RevenueShare":0.308,
+  "CumulativeShare":11.37,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":22,
+  "StockCode":"82484",
+  "Description":"WOOD BLACK BOARD ANT WHITE FINISH",
+  "ProductCategory":"Other Household",
+  "Revenue":17307.17,
+  "RevenueShare":0.3049,
+  "CumulativeShare":11.68,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":23,
+  "StockCode":"22386",
+  "Description":"JUMBO BAG PINK POLKADOT",
+  "ProductCategory":"Bags & Storage",
+  "Revenue":16687.24,
+  "RevenueShare":0.294,
+  "CumulativeShare":11.97,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":24,
+  "StockCode":"22411",
+  "Description":"JUMBO SHOPPER VINTAGE RED PAISLEY",
+  "ProductCategory":"Bags & Storage",
+  "Revenue":16494.81,
+  "RevenueShare":0.2906,
+  "CumulativeShare":12.26,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":25,
+  "StockCode":"21929",
+  "Description":"JUMBO BAG PINK VINTAGE PAISLEY",
+  "ProductCategory":"Bags & Storage",
+  "Revenue":16278.28,
+  "RevenueShare":0.2868,
+  "CumulativeShare":12.55,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":26,
+  "StockCode":"21232",
+  "Description":"STRAWBERRY CERAMIC TRINKET BOX",
+  "ProductCategory":"Bags & Storage",
+  "Revenue":16214.45,
+  "RevenueShare":0.2857,
+  "CumulativeShare":12.84,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":27,
+  "StockCode":"21733",
+  "Description":"RED HANGING HEART T-LIGHT HOLDER",
+  "ProductCategory":"Home Decor & Lighting",
+  "Revenue":16091.24,
+  "RevenueShare":0.2835,
+  "CumulativeShare":13.12,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":28,
+  "StockCode":"22111",
+  "Description":"SCOTTIE DOG HOT WATER BOTTLE",
+  "ProductCategory":"Kitchen & Dining",
+  "Revenue":15444.11,
+  "RevenueShare":0.2721,
+  "CumulativeShare":13.39,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":29,
+  "StockCode":"21731",
+  "Description":"RED TOADSTOOL LED NIGHT LIGHT",
+  "ProductCategory":"Home Decor & Lighting",
+  "Revenue":15338.45,
+  "RevenueShare":0.2702,
+  "CumulativeShare":13.66,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":30,
+  "StockCode":"84029E",
+  "Description":"RED WOOLLY HOTTIE WHITE HEART.",
+  "ProductCategory":"Other Household",
+  "Revenue":14791.04,
+  "RevenueShare":0.2606,
+  "CumulativeShare":13.92,
+  "ABCCategory":"A"
+ }
+]

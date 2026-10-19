@@ -1,0 +1,32 @@
+[
+ {
+  "Stage":"首次购买客户",
+  "Customers":3726,
+  "StepConversion":null,
+  "TotalConversion":100.0
+ },
+ {
+  "Stage":"完成第 2 次购买",
+  "Customers":1965,
+  "StepConversion":52.74,
+  "TotalConversion":52.74
+ },
+ {
+  "Stage":"完成第 3 次购买",
+  "Customers":1223,
+  "StepConversion":62.24,
+  "TotalConversion":32.82
+ },
+ {
+  "Stage":"完成第 4 次购买",
+  "Customers":775,
+  "StepConversion":63.37,
+  "TotalConversion":20.8
+ },
+ {
+  "Stage":"完成 5 次及以上（忠诚）",
+  "Customers":535,
+  "StepConversion":69.03,
+  "TotalConversion":14.36
+ }
+]

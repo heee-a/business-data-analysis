@@ -1,0 +1,11 @@
+{
+  "snapshot_date": "2011-12-01",
+  "thresholds": {
+    "Recency": 203.0,
+    "Frequency": 2.0,
+    "Monetary": 488.69
+  },
+  "threshold_method": "中位数切分（数据右偏，中位数对极值稳健）",
+  "n_customers": 3726,
+  "total_monetary": 4953956.77
+}

@@ -1,0 +1,40 @@
+{
+  "name": "Online Retail II (Online Retail Data Set)",
+  "publisher": "UCI Machine Learning Repository (University of California, Irvine)",
+  "dataset_id": 502,
+  "url": "https://archive.ics.uci.edu/dataset/502/online+retail+ii",
+  "download_url": "https://archive.ics.uci.edu/static/public/502/online+retail+ii.zip",
+  "access_type": "官方一次性下载文件（ZIP，内含 XLSX）",
+  "is_crawler": false,
+  "license": "UCI ML Repository 数据集默认遵循 Creative Commons Attribution 4.0 International (CC BY 4.0) 许可，允许在教学/科研/商业分析中署名转载与再分发。",
+  "acquired_date": "2026-10-19",
+  "cite": "Chen, D. (2012). Online Retail II [Dataset]. UCI Machine Learning Repository. https://doi.org/10.24432/C60H6D",
+  "file_sha256": "572e36277c2390fbfde10664750731e0a86f55e33470d91919085f0408e67bfb",
+  "downloaded_at": "2026-10-19 13:02:06",
+  "sampling": {
+    "method": "按发票（Invoice）随机抽样，保留选中发票的全部明细行",
+    "reason": "保持购物篮完整性，避免按行抽样撕裂同一订单的明细",
+    "random_seed": 2026,
+    "sample_fraction": 0.3,
+    "n_invoices_total": 53628,
+    "n_invoices_sampled": 16088,
+    "n_rows_total": 1067371,
+    "n_rows_after": 315722,
+    "retained_row_ratio": 0.2958,
+    "date_min": "2009-12-01 09:28:00",
+    "date_max": "2011-12-09 12:25:00"
+  },
+  "columns": [
+    "Invoice",
+    "StockCode",
+    "Description",
+    "Quantity",
+    "InvoiceDate",
+    "Price",
+    "Customer ID",
+    "Country",
+    "SourceSheet"
+  ],
+  "n_rows_raw_sample": 315722,
+  "crawler_declaration": "本项目数据获取全程未使用任何爬虫技术（未使用 Scrapy / Selenium / requests+网页解析 / 模拟登录抓取等），仅通过 UCI 官方提供的一次性下载文件（ZIP）获取，符合课程附件A白名单要求。"
+}

@@ -1,0 +1,26 @@
+[
+ {
+  "ABCCategory":"A",
+  "SKUs":1135,
+  "Revenue":4541100.0899999999,
+  "Quantity":2242989,
+  "SKU_Share":22.42,
+  "RevenueShare":80.0
+ },
+ {
+  "ABCCategory":"B",
+  "SKUs":1334,
+  "Revenue":851399.15,
+  "Quantity":721476,
+  "SKU_Share":26.35,
+  "RevenueShare":15.0
+ },
+ {
+  "ABCCategory":"C",
+  "SKUs":2593,
+  "Revenue":283567.53,
+  "Quantity":259337,
+  "SKU_Share":51.22,
+  "RevenueShare":5.0
+ }
+]

@@ -1,0 +1,10 @@
+﻿column,dtype,non_null,missing,missing_pct,n_unique,sample_value
+Invoice,object,315722,0,0.0,16088,489439
+StockCode,object,315722,0,0.0,4842,22065
+Description,object,314455,1267,0.401,5232,CHRISTMAS PUDDING TRINKET POT 
+Quantity,int64,315722,0,0.0,587,12
+InvoiceDate,datetime64[us],315722,0,0.0,15477,2009-12-01 09:28:00
+Price,float64,315722,0,0.0,1250,1.45
+Customer ID,float64,244743,70979,22.481,3977,12682.0
+Country,str,315722,0,0.0,37,France
+SourceSheet,str,315722,0,0.0,2,2009-2010

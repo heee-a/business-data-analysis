@@ -1,0 +1,20 @@
+# 统一换行符：仓库内一律 LF，Windows 检出时按需转为 CRLF。
+# 避免脚本在 Linux / macOS 下因 CRLF 出现 "^M: bad interpreter" 而无法运行。
+* text=auto
+
+# 二进制文件不做任何换行转换
+*.png  binary
+*.jpg  binary
+*.gz   binary
+*.zip  binary
+*.xlsx binary
+*.docx binary
+*.pdf  binary
+*.sqlite binary
+
+# 脚本与配置强制 LF（保证 CI 与 Linux 环境可执行）
+*.py   text eol=lf
+*.sh   text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.md   text eol=lf

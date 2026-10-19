@@ -1,0 +1,9 @@
+﻿table,rows
+fact_order_items,302786
+dim_orders,11875
+dim_customers,3763
+dim_products,4507
+dim_date,739
+t02_cancelled_orders,6261
+t02_nonproduct_costs,1311
+t02_outlier_rows,1690

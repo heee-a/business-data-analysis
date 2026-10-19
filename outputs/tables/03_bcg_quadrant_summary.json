@@ -1,0 +1,26 @@
+[
+ {
+  "Quadrant":"明星 Stars",
+  "Categories":2,
+  "Revenue":947234.25,
+  "RevenueShare":32.19
+ },
+ {
+  "Quadrant":"瘦狗 Dogs",
+  "Categories":4,
+  "Revenue":379622.18,
+  "RevenueShare":12.9
+ },
+ {
+  "Quadrant":"金牛 Cash Cows",
+  "Categories":2,
+  "Revenue":1288486.7000000002,
+  "RevenueShare":43.79
+ },
+ {
+  "Quadrant":"问题 Question Marks",
+  "Categories":3,
+  "Revenue":326848.96,
+  "RevenueShare":11.11
+ }
+]

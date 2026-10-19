@@ -1,0 +1,12 @@
+{
+  "best_k": 2,
+  "silhouette": 0.4271,
+  "features": [
+    "log1p(Recency)",
+    "log1p(Frequency)",
+    "log1p(Monetary)"
+  ],
+  "scaler": "StandardScaler",
+  "random_state": 2026,
+  "selection": "轮廓系数最大，兼顾惯性下降拐点"
+}

@@ -1,0 +1,12 @@
+{
+  "algorithm": "Apriori (mlxtend)",
+  "min_support": 0.01,
+  "min_confidence": 0.15,
+  "min_lift": 1.0,
+  "max_itemset_len": 3,
+  "top_items": 120,
+  "n_baskets": 7833,
+  "n_itemsets": 1744,
+  "n_rules": 3866,
+  "param_reason": "最小支持度 0.01：低于 1% 的组合缺乏铺货/陈列价值；提升度 > 1.0 保证是正向关联而非随机共现；置信度 ≥ 0.15 保证推荐命中率可被业务接受。"
+}
