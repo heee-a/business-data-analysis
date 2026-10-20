@@ -1,0 +1,16 @@
+﻿Preprocess,PreprocessDesc,K,Silhouette
+log1p_zscore,log1p + Z-score（对照口径：仅削弱量纲，未消除偏态）,2,0.4271
+log1p_zscore,log1p + Z-score（对照口径：仅削弱量纲，未消除偏态）,3,0.3823
+log1p_zscore,log1p + Z-score（对照口径：仅削弱量纲，未消除偏态）,4,0.3632
+log1p_zscore,log1p + Z-score（对照口径：仅削弱量纲，未消除偏态）,5,0.336
+log1p_zscore,log1p + Z-score（对照口径：仅削弱量纲，未消除偏态）,6,0.298
+winsor99_log_zscore,99% 缩尾 + log1p + Z-score,2,0.4269
+winsor99_log_zscore,99% 缩尾 + log1p + Z-score,3,0.3836
+winsor99_log_zscore,99% 缩尾 + log1p + Z-score,4,0.3639
+winsor99_log_zscore,99% 缩尾 + log1p + Z-score,5,0.3008
+winsor99_log_zscore,99% 缩尾 + log1p + Z-score,6,0.3038
+quantile_normal,分位数变换 → 正态分布（采用口径）,2,0.7412
+quantile_normal,分位数变换 → 正态分布（采用口径）,3,0.5261
+quantile_normal,分位数变换 → 正态分布（采用口径）,4,0.3444
+quantile_normal,分位数变换 → 正态分布（采用口径）,5,0.3391
+quantile_normal,分位数变换 → 正态分布（采用口径）,6,0.3255

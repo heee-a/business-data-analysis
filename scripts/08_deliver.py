@@ -44,13 +44,14 @@ FAILED: list[Path] = []   # 因被占用等原因未能更新的目标文件
 
 
 def reset_dir(path: Path) -> Path:
-    """确保目录存在。优先清空旧内容（幂等）；若旧文件被占用（如正在预览）
-    则跳过清空，靠后续同名覆盖保持最新——不阻断归档。"""
-    if path.exists():
-        try:
-            shutil.rmtree(path)
-        except OSError as exc:
-            iou.log(f"[WARN] 目录清理失败（将采用同名覆盖）：{path.name} — {exc}")
+    """确保目录存在并采用「同名覆盖」策略，不做整目录清空。
+
+    为什么不再 rmtree：归档目标位于用户桌面（个人目录），
+    整目录删除会触发批量删除保护（>50 个文件）而被拦截；
+    且旧文件常因正在预览而被占用，删除必然失败。
+    改为只创建目录、由 copy() 逐一同名覆盖，同样能保证归档内容最新，
+    且全程无任何删除操作。
+    """
     path.mkdir(parents=True, exist_ok=True)
     return path
 

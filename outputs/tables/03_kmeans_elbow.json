@@ -1,27 +1,37 @@
 [
  {
   "K":2,
-  "Inertia":6235.2,
-  "Silhouette":0.4271
+  "Inertia":6834.9,
+  "Silhouette":0.7412,
+  "CalinskiHarabasz":19036.2,
+  "DaviesBouldin":0.3776
  },
  {
   "K":3,
-  "Inertia":4726.3,
-  "Silhouette":0.3823
+  "Inertia":5385.3,
+  "Silhouette":0.5261,
+  "CalinskiHarabasz":12578.1,
+  "DaviesBouldin":0.8625
  },
  {
   "K":4,
-  "Inertia":3626.1,
-  "Silhouette":0.3632
+  "Inertia":4271.5,
+  "Silhouette":0.3444,
+  "CalinskiHarabasz":10892.6,
+  "DaviesBouldin":1.1001
  },
  {
   "K":5,
-  "Inertia":3142.6,
-  "Silhouette":0.336
+  "Inertia":3720.2,
+  "Silhouette":0.3391,
+  "CalinskiHarabasz":9515.7,
+  "DaviesBouldin":1.083
  },
  {
   "K":6,
-  "Inertia":2728.0,
-  "Silhouette":0.298
+  "Inertia":3305.5,
+  "Silhouette":0.3255,
+  "CalinskiHarabasz":8658.6,
+  "DaviesBouldin":1.055
  }
 ]

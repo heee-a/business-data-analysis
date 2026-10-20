@@ -211,7 +211,7 @@ footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10
         <tr><td>M5</td><td>Apriori 关联规则</td><td>support ≥ <b>0.01</b>（有铺货价值）/ lift &gt; <b>1.0</b>（正向关联）/ conf ≥ <b>0.15</b>（推荐可命中）</td><td>fig30 · fig31</td></tr>
         <tr><td>M6</td><td>波士顿矩阵</td><td>相对份额阈值 1.0（BCG 经典分界）；增速阈值取大盘同比 <b>7.62%</b></td><td>fig32</td></tr>
         <tr><td>M7</td><td>SARIMA / Holt-Winters</td><td>周周期 7 天；<b>30 天留出回测</b>；输出点预测 + <b>95% 置信区间</b></td><td>fig33</td></tr>
-        <tr><td>M8</td><td>K-Means 用户分群</td><td>log1p + 标准化；K 由<b>轮廓系数</b>确定（K = 2，0.4271）；seed = 2026</td><td>fig34</td></tr>
+        <tr><td>M8</td><td>K-Means 用户分群</td><td><b>分位数变换</b>→正态（消除 RFM 右偏）；K 由<b>轮廓系数</b>确定（K = 2，<b>0.7412</b>）；seed = 2026</td><td>fig34</td></tr>
         <tr><td>M9</td><td>复购漏斗</td><td>五级转化，定位「第 2 次购买」瓶颈</td><td>fig35</td></tr>
       </tbody>
     </table>
@@ -223,7 +223,7 @@ footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10
         <tr><td>SARIMA</td><td>(1,1,1)(1,0,1,7)</td><td>36.33%</td><td>£11,023</td><td>13,879.5</td><td></td></tr>
       </tbody>
     </table>
-    <p class="lead" style="margin-top:22px">稳健性检验：RFM 切分方式是否影响结论</p>
+    <p class="lead" style="margin-top:22px">稳健性检验① RFM 切分方式是否影响结论</p>
     <table class="tbl">
       <thead><tr><th>切分方式</th><th>阈值 R / F / M</th><th>核心客群人数</th><th>人数占比</th><th>营收占比</th></tr></thead>
       <tbody>
@@ -233,6 +233,31 @@ footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10
       </tbody>
     </table>
     <p class="lead">三种方案下「不足三成客户贡献六成以上营收」的结构均成立，结论稳健；同时可见均值切分会少识别约 500 名可运营客户，反向印证了采用中位数的理由。</p>
+
+    <p class="lead" style="margin-top:26px">稳健性检验② K-Means：K = 2 是数据本身的断点，而非参数没调好</p>
+    <table class="tbl">
+      <thead><tr><th>证据</th><th>对比口径</th><th>结果</th><th>结论</th></tr></thead>
+      <tbody>
+        <tr><td>预处理方式</td><td>log1p+Z-score / 99%缩尾 / <b>分位数变换</b></td><td>0.4271 / 0.4269 / <b>0.7412</b></td><td>低分是方法问题，不是数据问题</td></tr>
+        <tr><td>特征集（K=2）</td><td>R/F/M 三维 / +AOV / +Tenure</td><td><b>0.7412</b> / 0.6808 / 0.6364</td><td>多加特征反而更差（共线与噪声）</td></tr>
+        <tr><td>算法一致性</td><td>K-Means / Ward / GMM（K=2）</td><td>0.7412 / 0.7412 / 0.7412</td><td>三算法划分<b>完全相同</b>，与算法无关</td></tr>
+        <tr><td>bootstrap 稳定性</td><td>重采样 100 次的 ARI（K=2）</td><td><b>1.0000</b>（K=6 仅 0.7770）</td><td>扰动样本划分纹丝不动</td></tr>
+      </tbody>
+    </table>
+    <p class="lead">最有力的一条证据：高价值忠诚群 1,965 人<b>全部</b>购买过 2 次以上，沉睡流失群 1,761 人<b>全部</b>只买过 1 次，无一例外。无监督算法自动切出的分界精确落在「是否完成第 2 次购买」上，而 1,965 ÷ 3,726 = <b>52.74%</b>，与复购漏斗独立算出的复购率完全相等。</p>
+
+    <p class="lead" style="margin-top:26px">稳健性检验③ 波士顿矩阵增速口径</p>
+    <table class="tbl">
+      <thead><tr><th>品类</th><th>YoY(%)</th><th>趋势年化(%)</th><th>趋势 R²</th><th>t 值</th><th>象限一致</th></tr></thead>
+      <tbody>
+        <tr><td>Party &amp; Occasion</td><td>50.52</td><td>57.77</td><td>0.370</td><td>3.60</td><td>一致</td></tr>
+        <tr><td>Christmas &amp; Seasonal</td><td>40.61</td><td>155.26</td><td>0.131</td><td>1.82</td><td>一致</td></tr>
+        <tr><td>Bags &amp; Storage</td><td>26.53</td><td>37.53</td><td>0.348</td><td>3.42</td><td>一致</td></tr>
+        <tr><td>Home Decor &amp; Lighting</td><td>9.57</td><td>16.71</td><td>0.057</td><td>1.15</td><td><b>不一致</b></td></tr>
+        <tr><td>Jewellery &amp; Accessory</td><td>-48.27</td><td>-32.85</td><td>0.242</td><td>-2.65</td><td>一致</td></tr>
+      </tbody>
+    </table>
+    <p class="lead">两口径 <b>Spearman 相关 0.9636、象限一致 10/11</b>，四象限划分稳健。但 Christmas 品类差值达 114.65 个百分点且趋势不显著（R² 仅 0.131、t = 1.82），月度波动系数 1.257 为全表最高——同比把旺季相位差算成了增速，其「高增长」应谨慎解读。<b>全表仅 3 个品类趋势通过显著性检验</b>（|t| ≥ 2.07），据此 §6.3 建议对不显著品类只给方向性意见、不做量化承诺。</p>
   </div>
 </section>
 
@@ -249,7 +274,7 @@ footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10
         <tr><td>ABC 重构库存资金配置</td><td>帕累托：22.42% SKU 贡献 80% 销售额</td><td>库存周转效率 +30%，不影响 80% 营收盘子</td><td><b>P1</b></td><td>A 类现货率、C 类 SKU 占比</td></tr>
         <tr><td>组合陈列 + 捆绑优惠</td><td>Apriori：3,866 条规则，最强提升度 16.11</td><td>提升连带率与客单价</td><td><b>P2</b></td><td>连带率（件/单）、组合订单占比</td></tr>
         <tr><td>提前 8 周备货 + CI95 安全库存</td><td>预测 MAPE 34.70%，11 月峰值 £42.05 万</td><td>降低旺季缺货损失，抑制季末积压</td><td><b>P2</b></td><td>旺季缺货率、季末滞销库存占比</td></tr>
-        <tr><td>分层召回沉睡客群</td><td>RFM × K-Means：一般挽留 967 人 / 重要保持 487 人</td><td>召回 ROI ≥ 3:1（单次触达成本 &lt;£5）</td><td><b>P2</b></td><td>30 日回流率、单次召回成本</td></tr>
+        <tr><td>分层召回沉睡客群</td><td>K-Means：1,761 人（47.26%）<b>全部仅购买 1 次</b>，人均 £357</td><td>召回 ROI ≥ 3:1（单次触达成本 &lt;£5）</td><td><b>P1</b></td><td>30 日回流率、单次召回成本</td></tr>
         <tr><td><i>延伸建议</i>：市场多元化（战略）</td><td>结构分析：英国单一市场占 84.96%</td><td>英国营收占比降至 80% 以下</td><td><b>P3</b></td><td>非英营收占比、德/法新客净增数</td></tr>
       </tbody>
     </table>
@@ -262,7 +287,7 @@ footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10
   <div class="wrap">
     <h2>一键复现</h2>
     <p class="lead">随机种子在 <code>scripts/utils/config.py</code> 中固定为 2026，任何人克隆后均可得到完全一致的结果。
-      <b style="color:var(--good)">已实测：独立目录复跑后 35 张图 + 70 张结果表 MD5 全部一致</b>，
+      <b style="color:var(--good)">已实测：独立目录复跑后 35 张图 + 78 张结果表 MD5 全部一致</b>，
       详见仓库 <code>docs/复现验证报告.md</code>。</p>
     <pre><span class="c"># 1. 克隆仓库</span>
 <span class="k">git clone</span> https://github.com/heee-a/business-data-analysis.git
@@ -292,7 +317,7 @@ footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10
     </div>
     <p style="margin-top:18px">
       嘉兴大学 数据科学学院 · 数据科学与大数据技术 大数据241班 · 秦子睿 · 2026 年秋季学期 ·
-      完整论文见仓库 <code>docs/</code> 目录（Word + PDF，35 页，正文嵌入图 11 张 + 附录图表 39 张）·
+      完整论文见仓库 <code>docs/</code> 目录（Word + PDF，38 页，正文嵌入图 11 张 + 附录图表 39 张）·
       另有 <code>docs/图表索引.md</code>、<code>docs/数据来源合规声明.md</code>、<code>docs/复现验证报告.md</code> ·
       <a href="https://github.com/heee-a/business-data-analysis" target="_blank">GitHub 仓库</a>
     </p>

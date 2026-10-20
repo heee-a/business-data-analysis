@@ -1,12 +1,12 @@
-﻿ProductCategory,Revenue_Last12M,Revenue_Prev12M,YoY_Growth,Orders,SKUs,RelativeShare,ShareFlag,GrowthFlag,Quadrant,RevenueShare
-Other Household,731544.64,692486.49,5.64,9494,1236,3.309,H,L,金牛 Cash Cows,24.86
-Kitchen & Dining,556942.06,554431.8,0.45,8323,631,2.335,H,L,金牛 Cash Cows,18.93
-Bags & Storage,523392.22,413648.57,26.53,7425,364,2.164,H,H,明星 Stars,17.79
-Home Decor & Lighting,423842.03,386809.21,9.57,7566,635,1.683,H,H,明星 Stars,14.41
-Stationery & Wrap,239031.93,235678.03,1.42,6942,548,0.884,L,L,瘦狗 Dogs,8.12
-Christmas & Seasonal,170103.05,120974.29,40.61,3409,273,0.614,L,H,问题 Question Marks,5.78
-Party & Occasion,90379.7,60045.84,50.52,3229,66,0.317,L,H,问题 Question Marks,3.07
-Garden & Outdoor,86045.05,122517.37,-29.77,4425,262,0.301,L,L,瘦狗 Dogs,2.92
-Toys & Games,66366.21,56449.84,17.57,3021,107,0.231,L,H,问题 Question Marks,2.26
-Jewellery & Accessory,38371.62,74179.79,-48.27,2965,379,0.132,L,L,瘦狗 Dogs,1.3
-Bath & Fragrance,16173.58,16653.45,-2.88,1479,35,0.055,L,L,瘦狗 Dogs,0.55
+﻿ProductCategory,Revenue_Last12M,Revenue_Prev12M,YoY_Growth,Orders,SKUs,TrendAnnualPct,TrendR2,TrendT,TrendSignificant,N_Months,MonthlyCV,RelativeShare,ShareFlag,GrowthFlag,Quadrant,RevenueShare
+Other Household,731544.64,692486.49,5.64,9494,1236,15.36,0.089,1.46,False,24,0.311,3.309,H,L,金牛 Cash Cows,24.86
+Kitchen & Dining,556942.06,554431.8,0.45,8323,631,5.69,0.012,0.52,False,24,0.31,2.335,H,L,金牛 Cash Cows,18.93
+Bags & Storage,523392.22,413648.57,26.53,7425,364,37.53,0.348,3.42,True,24,0.301,2.164,H,H,明星 Stars,17.79
+Home Decor & Lighting,423842.03,386809.21,9.57,7566,635,16.71,0.057,1.15,False,24,0.432,1.683,H,H,明星 Stars,14.41
+Stationery & Wrap,239031.93,235678.03,1.42,6942,548,18.34,0.129,1.81,False,24,0.309,0.884,L,L,瘦狗 Dogs,8.12
+Christmas & Seasonal,170103.05,120974.29,40.61,3409,273,155.26,0.131,1.82,False,24,1.257,0.614,L,H,问题 Question Marks,5.78
+Party & Occasion,90379.7,60045.84,50.52,3229,66,57.77,0.37,3.6,True,24,0.452,0.317,L,H,问题 Question Marks,3.07
+Garden & Outdoor,86045.05,122517.37,-29.77,4425,262,-19.38,0.118,-1.71,False,24,0.343,0.301,L,L,瘦狗 Dogs,2.92
+Toys & Games,66366.21,56449.84,17.57,3021,107,36.34,0.15,1.97,False,24,0.538,0.231,L,H,问题 Question Marks,2.26
+Jewellery & Accessory,38371.62,74179.79,-48.27,2965,379,-32.85,0.242,-2.65,True,24,0.659,0.132,L,L,瘦狗 Dogs,1.3
+Bath & Fragrance,16173.58,16653.45,-2.88,1479,35,-5.92,0.005,-0.34,False,24,0.434,0.055,L,L,瘦狗 Dogs,0.55

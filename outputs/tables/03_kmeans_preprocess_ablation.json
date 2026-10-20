@@ -1,0 +1,92 @@
+[
+ {
+  "Preprocess":"log1p_zscore",
+  "PreprocessDesc":"log1p + Z-score（对照口径：仅削弱量纲，未消除偏态）",
+  "K":2,
+  "Silhouette":0.4271
+ },
+ {
+  "Preprocess":"log1p_zscore",
+  "PreprocessDesc":"log1p + Z-score（对照口径：仅削弱量纲，未消除偏态）",
+  "K":3,
+  "Silhouette":0.3823
+ },
+ {
+  "Preprocess":"log1p_zscore",
+  "PreprocessDesc":"log1p + Z-score（对照口径：仅削弱量纲，未消除偏态）",
+  "K":4,
+  "Silhouette":0.3632
+ },
+ {
+  "Preprocess":"log1p_zscore",
+  "PreprocessDesc":"log1p + Z-score（对照口径：仅削弱量纲，未消除偏态）",
+  "K":5,
+  "Silhouette":0.336
+ },
+ {
+  "Preprocess":"log1p_zscore",
+  "PreprocessDesc":"log1p + Z-score（对照口径：仅削弱量纲，未消除偏态）",
+  "K":6,
+  "Silhouette":0.298
+ },
+ {
+  "Preprocess":"winsor99_log_zscore",
+  "PreprocessDesc":"99% 缩尾 + log1p + Z-score",
+  "K":2,
+  "Silhouette":0.4269
+ },
+ {
+  "Preprocess":"winsor99_log_zscore",
+  "PreprocessDesc":"99% 缩尾 + log1p + Z-score",
+  "K":3,
+  "Silhouette":0.3836
+ },
+ {
+  "Preprocess":"winsor99_log_zscore",
+  "PreprocessDesc":"99% 缩尾 + log1p + Z-score",
+  "K":4,
+  "Silhouette":0.3639
+ },
+ {
+  "Preprocess":"winsor99_log_zscore",
+  "PreprocessDesc":"99% 缩尾 + log1p + Z-score",
+  "K":5,
+  "Silhouette":0.3008
+ },
+ {
+  "Preprocess":"winsor99_log_zscore",
+  "PreprocessDesc":"99% 缩尾 + log1p + Z-score",
+  "K":6,
+  "Silhouette":0.3038
+ },
+ {
+  "Preprocess":"quantile_normal",
+  "PreprocessDesc":"分位数变换 → 正态分布（采用口径）",
+  "K":2,
+  "Silhouette":0.7412
+ },
+ {
+  "Preprocess":"quantile_normal",
+  "PreprocessDesc":"分位数变换 → 正态分布（采用口径）",
+  "K":3,
+  "Silhouette":0.5261
+ },
+ {
+  "Preprocess":"quantile_normal",
+  "PreprocessDesc":"分位数变换 → 正态分布（采用口径）",
+  "K":4,
+  "Silhouette":0.3444
+ },
+ {
+  "Preprocess":"quantile_normal",
+  "PreprocessDesc":"分位数变换 → 正态分布（采用口径）",
+  "K":5,
+  "Silhouette":0.3391
+ },
+ {
+  "Preprocess":"quantile_normal",
+  "PreprocessDesc":"分位数变换 → 正态分布（采用口径）",
+  "K":6,
+  "Silhouette":0.3255
+ }
+]

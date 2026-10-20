@@ -1,9 +1,14 @@
 {
   "unit": "商品品类（由 Description 关键词派生）",
   "relative_share_def": "品类销售额 / 其余品类平均销售额，阈值 1.0（BCG 经典分界）",
-  "growth_def": "最近 12 个月 vs 前 12 个月销售额同比增速",
+  "growth_def": "最近 12 个月 vs 前 12 个月销售额同比增速（主口径）",
+  "growth_def_alt": "24 个月月度序列 log 线性趋势斜率年化（抗噪副口径）",
   "growth_threshold": 7.62,
   "growth_threshold_def": "整体销售额同比增速，作为“市场平均增速”基准",
+  "growth_threshold_trend": 19.23,
+  "spearman_yoy_vs_trend": 0.9636,
+  "quadrant_consistent": "10/11",
+  "n_significant_trend": 3,
   "window": [
     "2009-11-30",
     "2010-11-30",
