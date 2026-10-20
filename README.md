@@ -226,6 +226,7 @@ python run_all.py --skip 1 2      # 数据已就绪时跳过前两步
 | 期末大论文（PDF 版） | `docs/《商业数据分析》期末大论文.pdf` |
 | 数据来源合规声明 | `docs/数据来源合规声明.md` |
 | 图表索引（35 图 + 20 组件） | `docs/图表索引.md` |
+| 可复现性验证报告（独立目录复跑 + MD5 比对） | `docs/复现验证报告.md` |
 | 数据字典与星型模型说明 | `data/schema/` |
 | 关键结果 Excel 汇总（19 个 Sheet） | `outputs/tables/00_关键结果汇总.xlsx` |
 | 交互大屏（在线，JS 已内联、打开即用） | [GitHub Pages](https://heee-a.github.io/business-data-analysis/) |
@@ -245,7 +246,7 @@ python run_all.py --skip 1 2      # 数据已就绪时跳过前两步
 | 1. 数据获取合规性与清洗质量 | 15 | 白名单官方 ZIP 下载、**零爬虫**；合规声明含数据源/URL/获取方式/日期/License；抽样方法与种子已说明；缺失/异常/重复三类治理 + 主外键对齐；CSV/JSON/SQLite 三格式导出 | `data/raw/provenance.json`、`docs/数据来源合规声明.md`、论文 §2–§3 |
 | 2. 商业分析模型应用深度 | 20 | **9 类**模型（要求 ≥3）：环比同比 + 移动平均、RFM 八分类、同期群留存、帕累托 ABC、Apriori、波士顿矩阵、SARIMA + Holt-Winters、K-Means、复购漏斗；每个阈值均给业务依据；预测含 95% 置信区间 + 30 天留出回测（MAPE 34.70%） | `scripts/03_analysis.py`、`outputs/tables/03_*`、论文 §4 |
 | 3. 可视化复现与大屏质量 | 25 | **35 张**图（模板复现 25 + 业务模型 10）；Matplotlib 无原生支持的图型（瀑布/子弹/坡度/矩形树图）已自行实现；大屏 **4 页 20 组件**，带筛选联动、缩放、下钻、暗色主题；全 Python 生成，无 BI 软件、无 Excel 截图 | `outputs/figures/`、`outputs/dashboard/dashboard_offline.html`、`docs/图表索引.md` |
-| 4. 代码规范性与文档完整性 | 10 | 10 阶段流水线 + `run_all.py` 一键复现；`requirements.txt` 固定版本；README 含来源/步骤/索引/分工；图表统一命名 `figNN_主题.png` 并有索引表 | `run_all.py`、`requirements.txt`、`docs/图表索引.md` |
+| 4. 代码规范性与文档完整性 | 10 | 10 阶段流水线 + `run_all.py` 一键复现（支持 `--skip` / `--only`）；`requirements.txt` 固定版本；README 含来源/步骤/索引/分工；图表统一命名 `figNN_主题.png` 并有索引表；**已实测独立目录复跑后 35 图 + 68 表 MD5 全部一致**，并修复词云随机布局与 Apriori 排序两处非确定性 | `run_all.py`、`requirements.txt`、`docs/图表索引.md`、`docs/复现验证报告.md` |
 | 5. 期末大论文质量 | 25 | 题目 18 字；摘要 265 字符（200–300 区间内）；关键词 5 个；正文 1.28 万字含 16 张嵌入图与逐图解读、Python 与 Excel 实现对比（§5.2.1 专节 + 对照表）；6 条带数据支撑的商业建议 | `docs/《商业数据分析》期末大论文.docx` / `.pdf` |
 | 6. 创新性与商业洞察深度 | 5 | 自研图表算法（squarify 矩形树图、子弹图）；自动化复现流水线（含离线大屏打包、交付归档、大屏演示截图三个自建步骤）；大屏演示截图 + 轮播 GIF（无头浏览器自动实拍）；AI 使用规范披露（论文第 8 章） | `scripts/utils/chart_helpers.py`、`outputs/dashboard_screenshots/`、论文 §8 |
 

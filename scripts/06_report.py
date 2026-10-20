@@ -1197,7 +1197,7 @@ def build_docx() -> Path:
         "│   ├── dashboard/   dashboard_dark.html + dashboard_offline.html（大屏）",
         "│   ├── dashboard_screenshots/  大屏分 Tab 截图 + 拼图 + GIF",
         "│   └── html/        20 个独立组件 HTML",
-        "├── docs/           《商业数据分析》期末大论文.docx / .pdf、图表索引.md、数据来源合规声明.md",
+        "├── docs/           论文 .docx / .pdf、图表索引.md、数据来源合规声明.md、复现验证报告.md",
         "├── pages/          index.html（GitHub Pages 入口）",
         "├── requirements.txt    依赖清单",
         "├── run_all.py          一键复现入口",

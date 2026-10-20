@@ -201,7 +201,8 @@ def main() -> int:
     d07 = reset_dir(dest / "07_项目文档")
     for name, note in [("README.md", "项目总览：数据来源、目录结构、复现步骤、结论摘要"),
                        ("图表索引.md", "35 张图的编号 / 类别 / 对应模型说明"),
-                       ("数据来源合规声明.md", "许可证、抽样方法、 Privacy 合规说明")]:
+                       ("数据来源合规声明.md", "许可证、抽样方法、 Privacy 合规说明"),
+                       ("复现验证报告.md", "独立目录复跑 + MD5 逐文件比对的可复现性验证记录")]:
         p = root / "docs" / name
         if not p.exists():
             p = root / name
