@@ -20,7 +20,7 @@
 本项目以 [UCI Machine Learning Repository **Online Retail II**](https://archive.ics.uci.edu/dataset/502/online+retail+ii)（数据集 #502，CC BY 4.0）跨国零售交易数据为对象，完成从 **真实数据获取 → 清洗治理 → 模型分析 → 图表复现与大屏呈现 → 商业洞察提炼** 的端到端商业数据分析流程。
 
 - **零爬虫**：数据通过官方一次性 ZIP 下载文件获取（白名单方式），全程无任何网页抓取；
-- **可复现**：随机种子固定为 `2026`，克隆后执行一条命令即可重现全部 35 张图表、68 张结果表与交互大屏；
+- **可复现**：随机种子固定为 `2026`，克隆后执行一条命令即可重现全部 35 张图表、70 张结果表与交互大屏；
 - **全 Python**：所有图表与大屏均由 Python 生成，未使用 Power BI / Tableau / Fine BI 等任何 BI 软件；
 - **模型驱动**：9 类商业分析模型，每个参数与阈值均给出业务依据，预测含 95% 置信区间与 30 天留出回测。
 
@@ -55,12 +55,12 @@ business-data-analysis/
 │   ├── 06_report.py    # 期末大论文 Word + 图表索引生成
 │   ├── 07_offline_bundle.py # 离线自包含大屏（内联 echarts/plotly，免联网）
 │   ├── 08_deliver.py   # 交付物按提交类别归档到作业目录
-│   ├── 09_excel_summary.py # 关键结果 Excel 汇总（19 个 Sheet）
+│   ├── 09_excel_summary.py # 关键结果 Excel 汇总（20 个 Sheet）
 │   ├── 10_dashboard_screenshots.py # 大屏演示截图（无头浏览器实拍 + 拼图 + GIF）
 │   └── utils/          # config / io_utils / style / chart_helpers
 ├── outputs/
 │   ├── figures/        # fig01 ~ fig35（35 张 PNG）
-│   ├── tables/         # 68 个结果表（CSV + JSON）+ 00_关键结果汇总.xlsx
+│   ├── tables/         # 70 个结果表（CSV + JSON）+ 00_关键结果汇总.xlsx
 │   ├── dashboard/      # dashboard_dark.html（CDN 版）+ dashboard_offline.html（离线版）
 │   ├── dashboard_screenshots/ # 大屏分 Tab 截图 + 拼图 + 轮播 GIF
 │   └── html/           # 20 个独立组件 HTML
@@ -128,7 +128,7 @@ python run_all.py
 | 06 | `06_report.py` | 期末大论文 + 图表索引 | ~10 s |
 | 07 | `07_offline_bundle.py` | 离线自包含大屏打包（可选，需 `assets/echarts.min.js`） | ~2 s |
 | 08 | `08_deliver.py` | 交付物归档到作业目录（可选） | ~5 s |
-| 09 | `09_excel_summary.py` | 关键结果 Excel 汇总（19 个 Sheet） | ~1 s |
+| 09 | `09_excel_summary.py` | 关键结果 Excel 汇总（20 个 Sheet） | ~1 s |
 | 10 | `10_dashboard_screenshots.py` | 大屏演示截图：分 Tab 实拍 + 拼图 + GIF（可选，需本机 Chrome/Edge） | ~20 s |
 
 ```bash
@@ -158,6 +158,21 @@ python run_all.py --skip 1 2      # 数据已就绪时跳过前两步
 | M7 | SARIMA / Holt-Winters | 周周期 7 天；**30 天留出回测**，输出点预测+**95% CI** | fig33 |
 | M8 | K-Means 分群 | log1p + 标准化；K 由**轮廓系数**定（K=2，0.4271）；seed=2026 | fig34 |
 | M9 | 复购漏斗 | 五级转化，定位「第 2 次购买」瓶颈 | fig35 |
+
+### 稳健性检验（RFM 切分方式敏感性）
+
+阈值选择不应只给理由，还应检验结论是否依赖它。对 RFM 同时用三种切分计算核心高价值客群
+（`03_rfm_threshold_sensitivity.csv`）：
+
+| 切分方式 | 阈值 R / F / M | 核心客群人数 | 人数占比 | 营收占比 |
+| --- | --- | --- | :--: | :--: |
+| **中位数（采用）** | 203 天 / 2.00 次 / £488.69 | 1,069 | 28.69% | **69.99%** |
+| 均值 | 249 天 / 2.89 次 / £1,329.56 | 572 | 15.35% | 61.43% |
+| 60 分位 | 126 天 / 2.00 次 / £671.73 | 784 | 21.04% | 62.84% |
+
+三种方案下「不足三成客户贡献六成以上营收」的结构均成立，结论稳健；
+同时可见均值切分因 Monetary 均值被拉高到中位数的 2.7 倍，
+会少识别约 500 名可运营的高潜客户 —— 这反向印证了采用中位数的理由。
 
 ### 预测回测结果（测试集 30 天）
 
@@ -222,13 +237,13 @@ python run_all.py --skip 1 2      # 数据已就绪时跳过前两步
 
 | 提交物 | 位置 |
 | --- | --- |
-| 期末大论文（Word，约 1.28 万字，33 页，16 张嵌入图） | `docs/《商业数据分析》期末大论文.docx` |
+| 期末大论文（Word，约 1.34 万字，34 页，16 张嵌入图） | `docs/《商业数据分析》期末大论文.docx` |
 | 期末大论文（PDF 版） | `docs/《商业数据分析》期末大论文.pdf` |
 | 数据来源合规声明 | `docs/数据来源合规声明.md` |
 | 图表索引（35 图 + 20 组件） | `docs/图表索引.md` |
 | 可复现性验证报告（独立目录复跑 + MD5 比对） | `docs/复现验证报告.md` |
 | 数据字典与星型模型说明 | `data/schema/` |
-| 关键结果 Excel 汇总（19 个 Sheet） | `outputs/tables/00_关键结果汇总.xlsx` |
+| 关键结果 Excel 汇总（20 个 Sheet） | `outputs/tables/00_关键结果汇总.xlsx` |
 | 交互大屏（在线，JS 已内联、打开即用） | [GitHub Pages](https://heee-a.github.io/business-data-analysis/) |
 | 交互大屏（离线单文件） | `outputs/dashboard/dashboard_offline.html` |
 | 大屏演示截图 + 拼图 + 轮播 GIF（创新加分材料） | `outputs/dashboard_screenshots/` |
@@ -244,10 +259,10 @@ python run_all.py --skip 1 2      # 数据已就绪时跳过前两步
 | 评分维度 | 分值 | 落实情况 | 证据位置 |
 | --- | :-: | --- | --- |
 | 1. 数据获取合规性与清洗质量 | 15 | 白名单官方 ZIP 下载、**零爬虫**；合规声明含数据源/URL/获取方式/日期/License；抽样方法与种子已说明；缺失/异常/重复三类治理 + 主外键对齐；CSV/JSON/SQLite 三格式导出 | `data/raw/provenance.json`、`docs/数据来源合规声明.md`、论文 §2–§3 |
-| 2. 商业分析模型应用深度 | 20 | **9 类**模型（要求 ≥3）：环比同比 + 移动平均、RFM 八分类、同期群留存、帕累托 ABC、Apriori、波士顿矩阵、SARIMA + Holt-Winters、K-Means、复购漏斗；每个阈值均给业务依据；预测含 95% 置信区间 + 30 天留出回测（MAPE 34.70%） | `scripts/03_analysis.py`、`outputs/tables/03_*`、论文 §4 |
+| 2. 商业分析模型应用深度 | 20 | **9 类**模型（要求 ≥3）：环比同比 + 移动平均、RFM 八分类、同期群留存、帕累托 ABC、Apriori、波士顿矩阵、SARIMA + Holt-Winters、K-Means、复购漏斗；每个阈值均给业务依据；预测含 95% 置信区间 + 30 天留出回测（MAPE 34.70%）；**另做 RFM 阈值稳健性检验**（中位数/均值/60 分位三方案结论一致） | `scripts/03_analysis.py`、`outputs/tables/03_*`、论文 §4 |
 | 3. 可视化复现与大屏质量 | 25 | **35 张**图（模板复现 25 + 业务模型 10）；Matplotlib 无原生支持的图型（瀑布/子弹/坡度/矩形树图）已自行实现；大屏 **4 页 20 组件**，带筛选联动、缩放、下钻、暗色主题；全 Python 生成，无 BI 软件、无 Excel 截图 | `outputs/figures/`、`outputs/dashboard/dashboard_offline.html`、`docs/图表索引.md` |
-| 4. 代码规范性与文档完整性 | 10 | 10 阶段流水线 + `run_all.py` 一键复现（支持 `--skip` / `--only`）；`requirements.txt` 固定版本；README 含来源/步骤/索引/分工；图表统一命名 `figNN_主题.png` 并有索引表；**已实测独立目录复跑后 35 图 + 68 表 MD5 全部一致**，并修复词云随机布局与 Apriori 排序两处非确定性 | `run_all.py`、`requirements.txt`、`docs/图表索引.md`、`docs/复现验证报告.md` |
-| 5. 期末大论文质量 | 25 | 题目 18 字；摘要 265 字符（200–300 区间内）；关键词 5 个；正文 1.28 万字含 16 张嵌入图与逐图解读、Python 与 Excel 实现对比（§5.2.1 专节 + 对照表）；6 条带数据支撑的商业建议 | `docs/《商业数据分析》期末大论文.docx` / `.pdf` |
+| 4. 代码规范性与文档完整性 | 10 | 10 阶段流水线 + `run_all.py` 一键复现（支持 `--skip` / `--only`）；`requirements.txt` 固定版本；README 含来源/步骤/索引/分工；图表统一命名 `figNN_主题.png` 并有索引表；**已实测独立目录复跑后 35 图 + 70 表 MD5 全部一致**，并修复词云随机布局与 Apriori 排序两处非确定性 | `run_all.py`、`requirements.txt`、`docs/图表索引.md`、`docs/复现验证报告.md` |
+| 5. 期末大论文质量 | 25 | 题目 18 字；摘要 265 字符（200–300 区间内）；关键词 5 个；正文 1.34 万字含 16 张嵌入图与逐图解读、Python 与 Excel 实现对比（§5.2.1 专节 + 对照表）；6 条带数据支撑的商业建议 | `docs/《商业数据分析》期末大论文.docx` / `.pdf` |
 | 6. 创新性与商业洞察深度 | 5 | 自研图表算法（squarify 矩形树图、子弹图）；自动化复现流水线（含离线大屏打包、交付归档、大屏演示截图三个自建步骤）；大屏演示截图 + 轮播 GIF（无头浏览器自动实拍）；AI 使用规范披露（论文第 8 章） | `scripts/utils/chart_helpers.py`、`outputs/dashboard_screenshots/`、论文 §8 |
 
 > 优秀级自检项均已覆盖：预测含置信区间与误差回测 ✓；大屏组件 ≥6 且有筛选联动/下钻 ✓；

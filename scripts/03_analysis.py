@@ -633,6 +633,59 @@ def m8_kmeans(rfm: pd.DataFrame) -> pd.DataFrame:
 # ===========================================================================
 # M9 复购漏斗
 # ===========================================================================
+def robustness_rfm_threshold(df: pd.DataFrame, snapshot: pd.Timestamp) -> pd.DataFrame:
+    """
+    RFM 切分方式的稳健性检验（非新增模型，属于 M2 的验证环节）。
+
+    论文 §4.2 采用中位数切分，理由是指标右偏。本节给出反事实检验：
+    若改用均值切分或 60 分位切分，核心结论（高价值客群的规模与贡献）
+    是否依然成立？若三种切分下「少量客户贡献大部分营收」这一结构稳定，
+    则说明结论不依赖特定阈值设定。
+    """
+    d = df[(df["CustomerID"] != "GUEST") & (df["OrderDate"] <= pd.Timestamp(CUT_DATE))]
+    g = (d.groupby("CustomerID")
+           .agg(Recency=("OrderDate", lambda s: (snapshot - s.max()).days),
+                Frequency=("Invoice", "nunique"),
+                Monetary=("Revenue", "sum"))
+           .reset_index())
+    g["Recency"] = g["Recency"].clip(lower=0)
+
+    schemes = {
+        "中位数（采用）": {"Recency": g["Recency"].median(),
+                          "Frequency": g["Frequency"].median(),
+                          "Monetary": g["Monetary"].median()},
+        "均值": {"Recency": g["Recency"].mean(),
+                "Frequency": g["Frequency"].mean(),
+                "Monetary": g["Monetary"].mean()},
+        "60 分位": {"Recency": g["Recency"].quantile(0.40),   # R 越小越好，高组取 40 分位
+                   "Frequency": g["Frequency"].quantile(0.60),
+                   "Monetary": g["Monetary"].quantile(0.60)},
+    }
+
+    rows = []
+    total_rev = g["Monetary"].sum()
+    for name, thr in schemes.items():
+        r_h = g["Recency"] <= thr["Recency"]
+        f_h = g["Frequency"] >= thr["Frequency"]
+        m_h = g["Monetary"] >= thr["Monetary"]
+        core = g[r_h & f_h & m_h]                      # 三项皆高 ≈ 重要价值客户
+        high_m = g[m_h]
+        rows.append([
+            name,
+            f"{thr['Recency']:.0f} / {thr['Frequency']:.2f} / {thr['Monetary']:.2f}",
+            int(len(core)), round(len(core) / len(g) * 100, 2),
+            round(float(core['Monetary'].sum()), 2),
+            round(float(core['Monetary'].sum()) / total_rev * 100, 2),
+            int(len(high_m)), round(float(high_m['Monetary'].sum()) / total_rev * 100, 2),
+        ])
+
+    out = pd.DataFrame(rows, columns=[
+        "切分方式", "阈值(R天/F次/M英镑)", "核心高价值客户数", "人数占比(%)",
+        "核心客户营收(英镑)", "营收占比(%)", "M高组人数", "M高组营收占比(%)"])
+    iou.save_table(out, "03_rfm_threshold_sensitivity")
+    return out
+
+
 def m9_funnel(df: pd.DataFrame, rfm: pd.DataFrame) -> pd.DataFrame:
     """复购漏斗：全部客户 → 二次购买 → 三次 → 四次 → 五次及以上。"""
     total = int(rfm.shape[0])
@@ -670,6 +723,7 @@ def main() -> None:
     fc = m7_forecast(m1["daily"])
     rfm = m8_kmeans(rfm)
     funnel = m9_funnel(fact, rfm)
+    sens = robustness_rfm_threshold(fact, snapshot)
 
     # ---- 汇总 KPI，供 README / 论文 / 大屏复用
     d = fact[fact["OrderDate"] <= pd.Timestamp(CUT_DATE)]

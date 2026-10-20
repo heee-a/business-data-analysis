@@ -2,7 +2,7 @@
 """
 STEP 09 —— 关键结果 Excel 汇总
 
-把散落在 outputs/tables/ 的 68 个结果文件中的关键表汇总为一个多 Sheet 工作簿
+把散落在 outputs/tables/ 的 69 个结果文件中的关键表汇总为一个多 Sheet 工作簿
 `outputs/tables/00_关键结果汇总.xlsx`，便于核对与二次引用。
 
 Sheet 构成（按业务顺序）：
@@ -55,6 +55,7 @@ SHEETS: list[tuple[str, str, str, str]] = [
     ("10_波士顿矩阵", "03_bcg_matrix.csv", "csv", "品类市场份额 × 同比增速"),
     ("11_KMeans画像", "03_kmeans_cluster_profile.csv", "csv", "各聚类的 RFM 均值与规模"),
     ("12_复购漏斗", "03_repurchase_funnel.csv", "csv", "五级复购转化人数与转化率"),
+    ("12b_阈值稳健性", "03_rfm_threshold_sensitivity.csv", "csv", "RFM 中位数/均值/60 分位切分对比"),
     ("13_预测回测", "03_forecast_backtest.csv", "csv", "SARIMA 回测：实际 vs 预测 vs 误差"),
     ("14_未来30天预测", "03_forecast_future.csv", "csv", "SARIMA 未来 30 天点预测与置信区间"),
     ("15_图表索引", "04_figure_index.csv", "csv", "35 张图的编号、类别与说明"),
