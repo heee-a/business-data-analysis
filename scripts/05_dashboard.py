@@ -806,9 +806,16 @@ def main() -> None:
     iou.log(f"大屏已生成 → {out}（{out.stat().st_size/1024:.0f} KB）")
 
     # GitHub Pages 首页
+    # 注意：pages/index.html 是手工维护的成果落地页（含演示区、复现步骤、文档入口），
+    # 与大屏本体不同。若文件中存在 CURATED-LANDING 标记则跳过覆盖，
+    # 否则（首次生成）写入大屏本体作为兜底。
     pages = cfg.PAGE_DIR / "index.html"
-    pages.write_text(html, encoding="utf-8")
-    iou.log(f"GitHub Pages 首页已生成 → {pages}")
+    marker = "CURATED-LANDING"
+    if pages.exists() and marker in pages.read_text(encoding="utf-8", errors="ignore"):
+        iou.log("GitHub Pages 首页为手工维护版（检出 CURATED-LANDING 标记），跳过覆盖")
+    else:
+        pages.write_text(html, encoding="utf-8")
+        iou.log(f"GitHub Pages 首页已生成 → {pages}")
 
     # 组件清单
     listing = pd.DataFrame([
