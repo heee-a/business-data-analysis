@@ -316,10 +316,18 @@ def m5_apriori(df: pd.DataFrame, top_items: int = cfg.APRIORI_TOP_ITEMS) -> pd.D
     rules = association_rules(frequent, metric="lift",
                               min_threshold=cfg.APRIORI_MIN_LIFT)
     rules = rules[rules["confidence"] >= cfg.APRIORI_MIN_CONF]
-    rules = rules.sort_values("lift", ascending=False).reset_index(drop=True)
 
+    # 先把 itemset 转为有序字符串，再以「指标 + 规则内容」做全关键字排序。
+    # 仅按 lift 排序时，同分规则的先后由 mlxtend 内部的集合迭代顺序决定，
+    # 受 PYTHONHASHSEED 影响跨运行不稳定，会破坏字节级可复现性；
+    # 加入内容字段作 tie-breaker 后，排序结果完全确定。
     rules["antecedents"] = rules["antecedents"].apply(lambda s: ", ".join(sorted(s)))
     rules["consequents"] = rules["consequents"].apply(lambda s: ", ".join(sorted(s)))
+    rules = rules.sort_values(
+        ["lift", "confidence", "support", "antecedents", "consequents"],
+        ascending=[False, False, False, True, True],
+    ).reset_index(drop=True)
+
     rules = rules[["antecedents", "consequents", "support", "confidence",
                    "lift", "leverage", "conviction"]].round(4)
     rules.insert(0, "RuleID", np.arange(1, len(rules) + 1))

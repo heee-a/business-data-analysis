@@ -583,10 +583,11 @@ def fig24_wordcloud(products: pd.DataFrame) -> Path:
     stop = set("""OF SET THE AND WITH IN A TO FOR PCS PACK BOX SETS 3 6 12
                   ASSORTED COLOUR COLOURS DESIGN DESIGNS RETROSPOT LOVE HEART
                   JUMBO GIFT WRAP BAG OF SMALL LARGE XL """.split())
+    # random_state 固定，保证词云布局跨运行完全一致（可复现性要求）
     wc = WordCloud(width=1500, height=760, background_color="white",
                    font_path=None, colormap="tab20", max_words=170,
                    stopwords=stop, collocations=False,
-                   prefer_horizontal=0.72).generate(text)
+                   prefer_horizontal=0.72, random_state=cfg.RANDOM_SEED).generate(text)
     fig, ax = plt.subplots(figsize=(13, 6.6))
     ax.imshow(wc, interpolation="bilinear")
     ax.axis("off")

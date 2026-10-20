@@ -1,18 +1,6 @@
 [
  {
   "RuleID":1,
-  "antecedents":"22910",
-  "consequents":"22086, 22952",
-  "support":0.0117,
-  "confidence":0.2427,
-  "lift":16.1137,
-  "leverage":0.011,
-  "conviction":1.3007,
-  "AntecedentNames":"PAPER CHAIN KIT VINTAGE ",
-  "ConsequentNames":"PAPER CHAIN KIT 50'S CHR & 60 CAKE CASES VINTAGE CH"
- },
- {
-  "RuleID":2,
   "antecedents":"22086, 22952",
   "consequents":"22910",
   "support":0.0117,
@@ -22,6 +10,18 @@
   "conviction":4.3189,
   "AntecedentNames":"PAPER CHAIN KIT 50'S CHR & 60 CAKE CASES VINTAGE CH",
   "ConsequentNames":"PAPER CHAIN KIT VINTAGE "
+ },
+ {
+  "RuleID":2,
+  "antecedents":"22910",
+  "consequents":"22086, 22952",
+  "support":0.0117,
+  "confidence":0.2427,
+  "lift":16.1137,
+  "leverage":0.011,
+  "conviction":1.3007,
+  "AntecedentNames":"PAPER CHAIN KIT VINTAGE ",
+  "ConsequentNames":"PAPER CHAIN KIT 50'S CHR & 60 CAKE CASES VINTAGE CH"
  },
  {
   "RuleID":3,
@@ -97,18 +97,6 @@
  },
  {
   "RuleID":9,
-  "antecedents":"22727",
-  "consequents":"22726",
-  "support":0.029,
-  "confidence":0.6152,
-  "lift":13.8468,
-  "leverage":0.0269,
-  "conviction":2.4831,
-  "AntecedentNames":"ALARM CLOCK BAKELIKE RED",
-  "ConsequentNames":"ALARM CLOCK BAKELIKE GRE"
- },
- {
-  "RuleID":10,
   "antecedents":"22726",
   "consequents":"22727",
   "support":0.029,
@@ -120,19 +108,19 @@
   "ConsequentNames":"ALARM CLOCK BAKELIKE RED"
  },
  {
-  "RuleID":11,
-  "antecedents":"20723",
-  "consequents":"20728, 22356",
-  "support":0.0116,
-  "confidence":0.2298,
-  "lift":13.4329,
-  "leverage":0.0108,
-  "conviction":1.2761,
-  "AntecedentNames":"STRAWBERRY CHARLOTTE BAG",
-  "ConsequentNames":"LUNCH BAG CARS BLUE & CHARLOTTE BAG PINK POLKA"
+  "RuleID":10,
+  "antecedents":"22727",
+  "consequents":"22726",
+  "support":0.029,
+  "confidence":0.6152,
+  "lift":13.8468,
+  "leverage":0.0269,
+  "conviction":2.4831,
+  "AntecedentNames":"ALARM CLOCK BAKELIKE RED",
+  "ConsequentNames":"ALARM CLOCK BAKELIKE GRE"
  },
  {
-  "RuleID":12,
+  "RuleID":11,
   "antecedents":"20728, 22356",
   "consequents":"20723",
   "support":0.0116,
@@ -144,19 +132,19 @@
   "ConsequentNames":"STRAWBERRY CHARLOTTE BAG"
  },
  {
-  "RuleID":13,
+  "RuleID":12,
   "antecedents":"20723",
-  "consequents":"20724, 20728",
-  "support":0.0129,
-  "confidence":0.2551,
-  "lift":13.4081,
-  "leverage":0.0119,
-  "conviction":1.3168,
+  "consequents":"20728, 22356",
+  "support":0.0116,
+  "confidence":0.2298,
+  "lift":13.4329,
+  "leverage":0.0108,
+  "conviction":1.2761,
   "AntecedentNames":"STRAWBERRY CHARLOTTE BAG",
-  "ConsequentNames":"RED RETROSPOT CHARLOTTE  & LUNCH BAG CARS BLUE"
+  "ConsequentNames":"LUNCH BAG CARS BLUE & CHARLOTTE BAG PINK POLKA"
  },
  {
-  "RuleID":14,
+  "RuleID":13,
   "antecedents":"20724, 20728",
   "consequents":"20723",
   "support":0.0129,
@@ -166,6 +154,18 @@
   "conviction":2.9472,
   "AntecedentNames":"RED RETROSPOT CHARLOTTE  & LUNCH BAG CARS BLUE",
   "ConsequentNames":"STRAWBERRY CHARLOTTE BAG"
+ },
+ {
+  "RuleID":14,
+  "antecedents":"20723",
+  "consequents":"20724, 20728",
+  "support":0.0129,
+  "confidence":0.2551,
+  "lift":13.4081,
+  "leverage":0.0119,
+  "conviction":1.3168,
+  "AntecedentNames":"STRAWBERRY CHARLOTTE BAG",
+  "ConsequentNames":"RED RETROSPOT CHARLOTTE  & LUNCH BAG CARS BLUE"
  },
  {
   "RuleID":15,
