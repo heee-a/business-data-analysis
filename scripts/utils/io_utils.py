@@ -141,3 +141,81 @@ def write_text(text: str, path: Path) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8")
     return path
+
+
+# ------------------------------------------------- ZIP 容器（OOXML）确定性化
+def stabilize_zip_package(path: Path) -> Path:
+    """把 OOXML 容器（.docx / .xlsx 本质是 ZIP）重写为「确定性打包」。
+
+    背景
+    ----
+    python-docx / openpyxl 落盘时，ZIP 内每个条目的 ``date_time`` 取自当前系统时间，
+    因此**内容完全相同**的两次产出，二进制却不一致：
+
+    - 复现实验的 MD5 比对会失败（看似「不可复现」，实际只是打包时钟不同）；
+    - Git 每次重跑都会记录一个纯噪声的大文件 diff。
+
+    处理办法：保持条目顺序、压缩方式、权限位与外部属性不变，
+    仅把每个条目的时间戳固定为一个常量。这与 ``gz_archive()`` 里
+    ``mtime=0`` 的做法一致，均服务于「内容不变则字节不变」。
+
+    另外，openpyxl 在 ``save()`` 时会把 ``docProps/core.xml`` 里的
+    ``dcterms:modified`` 覆写为当前时刻（即使在保存前设置了属性也会被盖掉），
+    因此这里对该条目额外做一次时间字段规范化。
+    """
+    import re
+    import zipfile
+
+    path = Path(path)
+    FIXED_TIME = (2026, 1, 1, 0, 0, 0)
+    FIXED_STR = b"2026-01-01T00:00:00Z"
+    core_ts = re.compile(
+        rb"(<dcterms:(?:created|modified)[^>]*>\s*)[^<]+(\s*</dcterms:(?:created|modified)>)")
+    tmp = path.with_name(path.name + ".det")
+    try:
+        with zipfile.ZipFile(path, "r") as zin, \
+                zipfile.ZipFile(tmp, "w", zipfile.ZIP_DEFLATED) as zout:
+            for item in zin.infolist():
+                info = zipfile.ZipInfo(item.filename, date_time=FIXED_TIME)
+                info.compress_type = item.compress_type
+                info.create_system = item.create_system
+                info.external_attr = item.external_attr
+                info.internal_attr = item.internal_attr
+                info.extra = item.extra
+                info.comment = item.comment
+                if item.filename.endswith("docProps/core.xml"):
+                    # 注意：必须用 \g<1> 而非 \1 —— 替换串以数字开头（2026-…）时
+                    # "\1" 会被误解析为第 12 组引用，从而破坏 XML。
+                    payload = core_ts.sub(rb"\g<1>" + FIXED_STR + rb"\g<2>",
+                                          zin.read(item.filename))
+                else:
+                    payload = zin.read(item.filename)
+                zout.writestr(info, payload)
+            zout.comment = zin.comment
+    except Exception as exc:                                    # noqa: BLE001
+        # 打包失败不应阻断流水线，原文件内容依然有效
+        log(f"确定性打包失败，保持原文件：{path.name} — {exc}", "WARN")
+        _silent_unlink(tmp)
+        return path
+
+    # 原子替换；若目标被 Excel / Word 占用，退化为同名覆盖并重试
+    for attempt in range(3):
+        try:
+            if attempt == 0:
+                tmp.replace(path)
+            else:
+                path.write_bytes(tmp.read_bytes())
+            _silent_unlink(tmp)          # replace/write 成功后再清理临时打包件
+            return path
+        except PermissionError:
+            time.sleep(0.6)
+    log(f"目标被占用，跳过确定性打包（下次删除占用即可恢复）：{path.name}", "WARN")
+    _silent_unlink(tmp)
+    return path
+
+
+def _silent_unlink(path: Path) -> None:
+    try:
+        Path(path).unlink()
+    except OSError:
+        pass

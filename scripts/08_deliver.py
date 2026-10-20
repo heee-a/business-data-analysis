@@ -10,7 +10,7 @@ STEP 08 —— 交付物归档
     01_期末大论文/      Word + PDF
     02_交互大屏/        离线自包含版（双击即开）+ 在线 CDN 版 + 演示截图/GIF
     03_图表/            模板复现图 25 张 · 业务模型图 10 张
-    04_结果表/          明细表 CSV 38 个 · 参数与指标 JSON 30 个
+    04_结果表/          结果明细 CSV 与参数指标 JSON（数量于归档时自动统计）
     05_数据与字典/      清洗后数据（压缩）+ 维表 + 数据字典 + 星型模型
     06_源代码/          scripts/ + run_all.py + requirements.txt
     07_项目文档/        README + 图表索引 + 合规声明 + 在线地址
@@ -22,6 +22,8 @@ STEP 08 —— 交付物归档
 """
 from __future__ import annotations
 
+import json
+import re
 import shutil
 import sys
 import time
@@ -74,6 +76,55 @@ def copy(src: Path, dst: Path) -> bool:
 
 def human(size: int) -> str:
     return f"{size / 1048576:.2f} MB" if size >= 1048576 else f"{size / 1024:.0f} KB"
+
+
+# ---------------------------------------------------------------------------
+# 论文与成果统计（动态读取，避免提交清单里的数字随内容更新而漂移）
+# ---------------------------------------------------------------------------
+def paper_stats() -> tuple[int, float, int]:
+    """返回 (页数, 万字, 嵌入图片数)。
+
+    页数从已导出的 PDF 读取；字数与嵌入图数从 Word 正文统计。
+    任一环节不可用时该项回退为 0，由调用方决定是否显示。
+    """
+    docx_path = cfg.DOC_DIR / "《商业数据分析》期末大论文.docx"
+    pdf_path = cfg.DOC_DIR / "《商业数据分析》期末大论文.pdf"
+    if not docx_path.exists():
+        return 0, 0.0, 0
+
+    pages, words, images = 0, 0.0, 0
+    try:
+        from docx import Document
+        doc = Document(str(docx_path))
+        parts = [p.text for p in doc.paragraphs]
+        for t in doc.tables:
+            for row in t.rows:
+                parts += [c.text for c in row.cells]
+        joined = "".join(parts)
+        # 与 06_report.py 的统计口径保持一致：以中文字符数为准
+        cn = sum(1 for ch in joined if "\u4e00" <= ch <= "\u9fff")   # 中文字符
+        words = round(cn / 10000, 2)
+        # 嵌入图数优先取 06_report.py 产出的正文图计数（inline_shapes 会把
+        # 附录 D 的 35 张缩略图一并计入，用它描述「论文嵌入了多少张关键图」会失真）
+        meta = cfg.OUT_DIR / "report_stats.json"
+        if meta.exists():
+            try:
+                images = int(json.loads(meta.read_text(encoding="utf-8"))["body_images"])
+            except Exception:                                        # noqa: BLE001
+                images = len(doc.inline_shapes)
+        else:
+            images = len(doc.inline_shapes)
+    except Exception as exc:                                        # noqa: BLE001
+        iou.log(f"[WARN] 论文统计失败：{exc}")
+
+    if pdf_path.exists():
+        try:
+            m = re.search(rb"/Count\s+(\d+)", pdf_path.read_bytes())
+            if m:
+                pages = int(m.group(1))
+        except Exception as exc:                                    # noqa: BLE001
+            iou.log(f"[WARN] PDF 页数读取失败：{exc}")
+    return pages, words, images
 
 
 def main() -> int:
@@ -219,6 +270,17 @@ def main() -> int:
     manifest.append(("07_项目文档/在线成果页地址.txt", "-", "仓库与 Pages 在线地址"))
 
     # ---------------------------------------------------------- 提交清单
+    # 统计口径全部动态读取，避免清单数字与仓库实际内容脱节
+    pages, words, embedded = paper_stats()
+    paper_desc = " / ".join(filter(None, [
+        f"{pages} 页" if pages else "",
+        f"约 {words} 万字" if words else "",
+    ])) or "主交付物"
+    fig_n = len(list(cfg.FIG_DIR.glob("*.png")))
+    csv_n = len(list(cfg.TAB_DIR.glob("*.csv")))
+    json_n = len(list(cfg.TAB_DIR.glob("*.json")))
+    table_n = csv_n + json_n
+
     lines = [
         "# 《商业数据分析》期末大作业 —— 提交清单",
         "",
@@ -244,21 +306,25 @@ def main() -> int:
         "",
         "## 二、建议提交顺序",
         "",
-        "1. `01_期末大论文/《商业数据分析》期末大论文.pdf` —— 主交付物（29 页 / 约 1.2 万字）",
+        f"1. `01_期末大论文/《商业数据分析》期末大论文.pdf` —— 主交付物"
+        f"（{paper_desc}）",
         "2. `02_交互大屏/大屏_离线版(双击打开).html` —— 双击即可查看 4 页 20 组件联动大屏",
-        "3. `03_图表/` —— 35 张 200dpi 图（论文中已嵌入 14 张关键图）",
-        "4. `04_结果表/` —— 68 个模型输出文件，供数据核对",
+        f"3. `03_图表/` —— {fig_n} 张 200dpi 图（论文中已嵌入 {embedded} 张关键图）",
+        f"4. `04_结果表/` —— {table_n} 个模型输出文件（CSV {csv_n} + JSON {json_n}），供数据核对",
         "5. `05_数据与字典/` —— 清洗后数据与数据字典",
         "6. `06_源代码/` —— 全流程可复现代码",
         "",
-        "## 三、需要你补充的一项",
+        "## 三、成果自测与外部核验",
         "",
-        "论文封面「专业班级 / 学号 / 姓名」目前为占位符。请编辑 `06_源代码/scripts/06_report.py`",
-        "顶部的 `SCHOOL_INFO` 字典后重新运行：",
+        f"本归档由流水线末步自动生成。论文 {paper_desc}，含 {embedded} 张嵌入图；"
+        f"另附 {fig_n} 张 200dpi 原图、{table_n} 个结果表文件。"
+        "上述数字在每次运行 `08_deliver.py` 时重新统计，不会与仓库内容脱节。",
+        "",
+        "若修改了个人信息、模型参数或图表，请按顺序重新运行：",
         "",
         "```bash",
         "python scripts/06_report.py      # 重新生成 Word",
-        "python scripts/07_offline_bundle.py",
+        "python scripts/09_excel_summary.py",
         "python scripts/08_deliver.py     # 重新归档",
         "```",
         "",

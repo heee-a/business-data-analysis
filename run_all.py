@@ -51,7 +51,7 @@ PY = sys.executable
 STEPS: list[tuple[int, str, str, bool]] = [
     (1, "scripts/01_load.py", "数据获取（官方下载 + 按发票抽样）", False),
     (2, "scripts/02_clean.py", "数据清洗与治理（星型模型构建）", False),
-    (3, "scripts/03_analysis.py", "商业分析模型（8 类模型计算）", False),
+    (3, "scripts/03_analysis.py", "商业分析模型（9 类模型计算）", False),
     (4, "scripts/04_visuals.py", "静态图表生成（35 张 200dpi）", False),
     (5, "scripts/05_dashboard.py", "交互式大屏（20 组件）", False),
     (6, "scripts/06_report.py", "期末大论文生成（Word）", False),

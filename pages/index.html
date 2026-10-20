@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>基于 UCI Online Retail II 的零售商业数据分析 | 期末大作业</title>
-<meta name="description" content="合规取数 · 数据治理 · 8 类商业模型 · 35 张 Python 图表 · 20 组件交互大屏 —— 商业数据分析期末大作业">
+<meta name="description" content="合规取数 · 数据治理 · 9 类商业模型 · 35 张 Python 图表 · 20 组件交互大屏 —— 商业数据分析期末大作业">
 <style>
 :root{
   --bg:#0b1020; --bg2:#111834; --card:#151d3b; --line:#243056;
@@ -112,7 +112,7 @@ footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10
     <h1>基于 <span>UCI Online Retail II</span> 的<br>跨国零售用户价值与品类结构分析</h1>
     <p class="sub">
       以 UCI Machine Learning Repository 公开数据集（#502，CC BY 4.0）为对象，
-      完成「合规取数 → 清洗治理 → 8 类商业模型 → 35 张 Python 图表 → 20 组件交互大屏 → 商业洞察」的端到端流程。
+      完成「合规取数 → 清洗治理 → 9 类商业模型 → 35 张 Python 图表 → 20 组件交互大屏 → 商业洞察」的端到端流程。
       全流程零爬虫、零 BI 软件，随机种子固定为 2026，克隆后一条命令即可完整复现。
     </p>
     <div class="meta">
@@ -128,6 +128,7 @@ footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10
       <a class="btn s" href="https://github.com/heee-a/business-data-analysis" target="_blank">查看源码仓库</a>
       <a class="btn s" href="#gallery">浏览 35 张图表</a>
       <a class="btn s" href="#model">模型与参数</a>
+      <a class="btn s" href="#action">商业建议</a>
     </div>
   </div>
 </header>
@@ -235,6 +236,27 @@ footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10
   </div>
 </section>
 
+<section id="action">
+  <div class="wrap">
+    <h2>商业建议与落地优先级</h2>
+    <p class="lead">分析的价值最终要落到决策上。论文 §6.3 基于模型证据提出 6 条建议，
+      每条都配了优先级与<b>可观测的 KPI</b>，使建议落地后能被反向检验。</p>
+    <table class="tbl">
+      <thead><tr><th>建议</th><th>核心模型证据</th><th>量化预期效果</th><th>优先级</th><th>效果度量指标（KPI）</th></tr></thead>
+      <tbody>
+        <tr><td>重要价值客户专属运营</td><td>RFM：1,069 人（28.69%）贡献 69.99% 营收</td><td>留存率每 +1pp ≈ 保住 £3.5 万/年</td><td><b>P1</b></td><td>该群季度留存率、人均年贡献额</td></tr>
+        <tr><td>ABC 重构库存资金配置</td><td>帕累托：22.42% SKU 贡献 80% 销售额</td><td>库存周转效率 +30%，不影响 80% 营收盘子</td><td><b>P1</b></td><td>A 类现货率、C 类 SKU 占比</td></tr>
+        <tr><td>组合陈列 + 捆绑优惠</td><td>Apriori：3,866 条规则，最强提升度 16.11</td><td>提升连带率与客单价</td><td><b>P2</b></td><td>连带率（件/单）、组合订单占比</td></tr>
+        <tr><td>提前 8 周备货 + CI95 安全库存</td><td>预测 MAPE 34.70%，11 月峰值 £42.05 万</td><td>降低旺季缺货损失，抑制季末积压</td><td><b>P2</b></td><td>旺季缺货率、季末滞销库存占比</td></tr>
+        <tr><td>分层召回沉睡客群</td><td>RFM × K-Means：一般挽留 967 人 / 重要保持 487 人</td><td>召回 ROI ≥ 3:1（单次触达成本 &lt;£5）</td><td><b>P2</b></td><td>30 日回流率、单次召回成本</td></tr>
+        <tr><td>推进市场多元化</td><td>结构分析：英国单一市场占 84.96%</td><td>英国营收占比降至 80% 以下</td><td><b>P3</b></td><td>非英营收占比、德/法新客净增数</td></tr>
+      </tbody>
+    </table>
+    <p class="lead">优先级口径：<b>P1</b> 低成本、收益确定，一个月内可启动；<b>P2</b> 需跨部门配合，一个季度内排期，
+      建议先小范围 A/B 验证；<b>P3</b> 属战略性结构调整，纳入年度规划而非季度考核。</p>
+  </div>
+</section>
+
 <section>
   <div class="wrap">
     <h2>一键复现</h2>
@@ -269,7 +291,7 @@ footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10
     </div>
     <p style="margin-top:18px">
       嘉兴大学 数据科学学院 · 数据科学与大数据技术 大数据241班 · 秦子睿 · 2026 年秋季学期 ·
-      完整论文见仓库 <code>docs/</code> 目录（Word + PDF，34 页）·
+      完整论文见仓库 <code>docs/</code> 目录（Word + PDF，35 页，正文嵌入图 11 张 + 附录图表 39 张）·
       另有 <code>docs/图表索引.md</code>、<code>docs/数据来源合规声明.md</code>、<code>docs/复现验证报告.md</code> ·
       <a href="https://github.com/heee-a/business-data-analysis" target="_blank">GitHub 仓库</a>
     </p>

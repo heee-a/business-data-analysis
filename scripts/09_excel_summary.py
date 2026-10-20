@@ -28,6 +28,7 @@ Sheet 构成（按业务顺序）：
 from __future__ import annotations
 
 import sys
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -115,6 +116,15 @@ def main() -> int:
         for sheet, df in frames.items():
             df.to_excel(writer, sheet_name=sheet, index=False)
 
+        # 固定工作簿元数据：openpyxl 默认写入 created/modified = 当前时刻，
+        # 会导致内容相同却字节不同（Git 噪声 + 复现比对失败）。
+        FIXED_TS = datetime(2026, 1, 1)
+        writer.book.properties.creator = "商业数据分析期末作业流水线"
+        writer.book.properties.lastModifiedBy = "scripts/09_excel_summary.py"
+        writer.book.properties.created = FIXED_TS
+        writer.book.properties.modified = FIXED_TS
+        writer.book.properties.title = "UCI Online Retail II 关键结果汇总"
+
         # ---- 统一美化
         from openpyxl.styles import Alignment, Font, PatternFill
         wb = writer.book
@@ -133,6 +143,9 @@ def main() -> int:
                 ws.column_dimensions[letter].width = min(max(width * 1.6 + 2, 9), 46)
             ws.auto_filter.ref = ws.dimensions
 
+    # xlsx 同为 ZIP 容器，默认会把「写入时刻」写进条目时间戳；
+    # 重写为确定性打包，避免每次重跑都产生一个纯噪声的 Git diff
+    iou.stabilize_zip_package(OUT)
     size = OUT.stat().st_size / 1024
     iou.log(f"STEP 09 完成 ✓ 汇总工作簿 → {OUT}（{len(frames) + 1} 个 Sheet，{size:.0f} KB）")
     if missing:
