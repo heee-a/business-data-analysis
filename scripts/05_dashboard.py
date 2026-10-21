@@ -168,6 +168,10 @@ def build_components(D: dict) -> dict:
     order: list[str] = []
 
     def add(key, title, chart, span=6, save=True):
+        # 固定容器 ID：pyecharts 默认每次渲染生成随机 UUID 作为 div id，
+        # 会导致同一份配置两次渲染出的组件 HTML 字节不同（复现比对失败）。
+        # 以组件键名作为 chart_id 后，组件 HTML 跨运行完全确定。
+        chart.chart_id = key
         html = embed(chart, first=(not order))
         comp[key] = (title, html, span)
         order.append(key)
