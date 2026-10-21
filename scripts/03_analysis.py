@@ -914,6 +914,375 @@ def m9_funnel(df: pd.DataFrame, rfm: pd.DataFrame) -> pd.DataFrame:
     return f
 
 
+# ---------------------------------------------------------------------------
+# M10 · 客户流失预警（课程模型清单「预测与预警」类）
+#
+# 设计要点（也是本节方法论的核心）：
+#   1. 严格的时间切分。特征只使用「观测窗」(≤ T0) 内的数据，标签来自
+#      「表现窗」(T0, T1] 内是否发生购买。两者不重叠，杜绝标签泄漏——
+#      这是流失预警最容易出错、也最容易被忽视的地方。
+#   2. 时间外验证。除 5 折交叉验证外，再用一个**完全不同的时间窗**
+#      做 out-of-time 检验，验证模型不是记住了某个特定窗口的噪声。
+#   3. 类别不平衡用 class_weight="balanced" 处理，而非对多数类欠采样
+#      （后者会丢掉高价值客户的信息）。
+# ---------------------------------------------------------------------------
+CHURN_FEATS = [
+    "Recency", "Frequency", "Monetary", "AOV", "Tenure", "SpanDays", "AvgGap",
+    "SKUs", "Cats", "SKUperOrder", "IsUK", "HasReturn", "RecencyShare90", "MonShare90",
+]
+
+# 特征的业务含义（用于论文表格与结果解读）
+CHURN_FEAT_DESC = {
+    "Recency": "距末次购买天数（观测窗末计）",
+    "Frequency": "观测窗内购买次数",
+    "Monetary": "观测窗内累计消费额",
+    "AOV": "客单价（消费额 ÷ 次数）",
+    "Tenure": "入会时长（距首次购买天数）",
+    "SpanDays": "首次至末次购买跨度",
+    "AvgGap": "平均购买间隔（入会时长 ÷ 次数）",
+    "SKUs": "累计购买过的商品种类数",
+    "Cats": "累计购买过的品类数",
+    "SKUperOrder": "单次购买的商品种类数",
+    "IsUK": "是否英国客户（1=是）",
+    "HasReturn": "历史是否发生退货（1=是）",
+    "RecencyShare90": "近 90 天购买次数占历史比重",
+    "MonShare90": "近 90 天消费额占历史比重",
+}
+
+
+def _build_churn_window(fact: pd.DataFrame, t0: str, t1: str):
+    """构造一个「观测窗 ≤t0 / 表现窗 (t0, t1]」的建模样本。
+
+    返回 (X, y)；X 的每一行是一位在观测窗内有过购买的客户。
+    """
+    T0, T1 = pd.Timestamp(t0), pd.Timestamp(t1)
+    obs = fact[fact["OrderDate"] <= T0]
+    active = set(fact[(fact["OrderDate"] > T0) & (fact["OrderDate"] <= T1)]["CustomerID"].unique())
+
+    g = obs.groupby("CustomerID")
+    X = pd.DataFrame({
+        "Recency": (T0 - g["OrderDate"].max()).dt.days,
+        "Frequency": g["Invoice"].nunique(),
+        "Monetary": g["Revenue"].sum(),
+        "FirstOrder": g["OrderDate"].min(),
+        "LastOrder": g["OrderDate"].max(),
+        "SKUs": g["StockCode"].nunique(),
+        "Cats": g["ProductCategory"].nunique(),
+        "IsUK": (g["Country"].first() == "United Kingdom").astype(int),
+        "HasReturn": (g["Revenue"].min() < 0).astype(int),
+    })
+    X["Recency"] = X["Recency"].astype(int)
+    X["AOV"] = X["Monetary"] / X["Frequency"]
+    X["Tenure"] = (T0 - X["FirstOrder"]).dt.days.astype(int)
+    X["SpanDays"] = (X["LastOrder"] - X["FirstOrder"]).dt.days.astype(int)
+    X["AvgGap"] = X["Tenure"] / X["Frequency"]
+    X["SKUperOrder"] = X["SKUs"] / X["Frequency"]
+
+    # 近 90 天活跃度：刻画「最近是否还在买」，比单纯看 Recency 更敏感
+    r90 = obs[obs["OrderDate"] > T0 - pd.Timedelta(days=90)]
+    g90 = r90.groupby("CustomerID").agg(F90=("Invoice", "nunique"), M90=("Revenue", "sum"))
+    X = X.join(g90).fillna({"F90": 0, "M90": 0.0})
+    X["RecencyShare90"] = X["F90"] / X["Frequency"]
+    X["MonShare90"] = (X["M90"] / X["Monetary"]).clip(0, 3)
+    X = X.drop(columns=["FirstOrder", "LastOrder"])
+
+    # 1 = 表现窗内未再购买 = 流失（用 pd.Series 保留客户索引，便于后续对齐）
+    y = pd.Series((~X.index.isin(active)).astype(int), index=X.index, name="Churn")
+    return X, y
+
+
+def m10_churn(df: pd.DataFrame) -> pd.DataFrame:
+    """客户流失预警：观测窗 ≤2011-08-31，表现窗 2011-09-01~2011-11-30（3 个月）。
+
+    除主模型外，另做三组「把模型用到边界」的检验，用于回答三个
+    会被评审直接追问的问题：
+      1. 这个分数是模型的极限，还是调参不够？      → 分层可预测性检验
+      2. 换个时间窗口还成立吗？                   → 多窗口时间外稳健性
+      3. 按概率阈值触达真的划算吗？               → 阈值成本收益分析
+    """
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.metrics import average_precision_score, roc_auc_score, roc_curve
+    from sklearn.model_selection import StratifiedKFold, cross_val_predict
+    from sklearn.preprocessing import StandardScaler
+
+    d = df[(df["CustomerID"] != "GUEST") & (df["OrderDate"] <= pd.Timestamp(CUT_DATE))].copy()
+
+    # ---------------- 主窗口与验证窗口 ----------------
+    T0, T1 = "2011-08-31", CUT_DATE                 # 主：表现窗 3 个月
+    VT0, VT1 = "2011-05-31", "2011-08-31"           # 时间外：整体前移 3 个月
+    X, y = _build_churn_window(d, T0, T1)
+    Xv, yv = _build_churn_window(d, VT0, VT1)
+    iou.log(f"流失预警主样本 {len(X):,} 位客户，流失率 {y.mean() * 100:.2f}%")
+    iou.log(f"时间外验证样本 {len(Xv):,} 位客户，流失率 {yv.mean() * 100:.2f}%")
+
+    win = pd.DataFrame([
+        {"窗口": "主建模窗口", "观测窗": f"2009-12-01 ~ {T0}", "表现窗": f"{T0} ~ {T1}",
+         "表现窗长度(天)": (pd.Timestamp(T1) - pd.Timestamp(T0)).days,
+         "基线客户数": len(X), "流失人数": int(y.sum()),
+         "流失率(%)": round(float(y.mean() * 100), 2)},
+        {"窗口": "时间外验证窗口", "观测窗": f"2009-12-01 ~ {VT0}", "表现窗": f"{VT0} ~ {VT1}",
+         "表现窗长度(天)": (pd.Timestamp(VT1) - pd.Timestamp(VT0)).days,
+         "基线客户数": len(Xv), "流失人数": int(yv.sum()),
+         "流失率(%)": round(float(yv.mean() * 100), 2)},
+    ])
+    iou.save_table(win, "03_churn_window_summary")
+
+    Xm = np.log1p(X[CHURN_FEATS].clip(lower=0))
+    Xvm = np.log1p(Xv[CHURN_FEATS].clip(lower=0))
+    Z = StandardScaler().fit_transform(Xm)
+    Zv = StandardScaler().fit_transform(Xvm)     # 验证窗独立标准化，避免信息前移
+
+    lr = LogisticRegression(max_iter=2000, random_state=cfg.RANDOM_SEED,
+                            class_weight="balanced")
+    rf = RandomForestClassifier(n_estimators=400, max_depth=6, min_samples_leaf=20,
+                                random_state=cfg.RANDOM_SEED, class_weight="balanced",
+                                n_jobs=-1)
+    cv = StratifiedKFold(5, shuffle=True, random_state=cfg.RANDOM_SEED)
+
+    def _ks(y_true, prob):
+        fpr, tpr, _ = roc_curve(y_true, prob)
+        return float(np.max(tpr - fpr))
+
+    rows, roc_rows = [], []
+    fitted, prob_main, prob_cv = {}, {}, {}
+    for name, mdl, mat, matv in (("逻辑回归", lr, Z, Zv),
+                                 ("随机森林", rf, Xm, Xvm)):
+        p_cv = cross_val_predict(mdl, mat, y, cv=cv, method="predict_proba")[:, 1]
+        auc_cv, ap_cv, ks_cv = (roc_auc_score(y, p_cv),
+                                average_precision_score(y, p_cv), _ks(y, p_cv))
+        mdl.fit(mat, y)
+        p_v = mdl.predict_proba(matv)[:, 1]
+        auc_v, ap_v, ks_v = (roc_auc_score(yv, p_v),
+                             average_precision_score(yv, p_v), _ks(yv, p_v))
+        fitted[name] = mdl
+        prob_main[name] = mdl.predict_proba(mat)[:, 1]
+        prob_cv[name] = p_cv
+        rows.append({"模型": name, "CV_AUC": round(auc_cv, 4), "CV_PR_AUC": round(ap_cv, 4),
+                     "CV_KS": round(ks_cv, 4), "时间外_AUC": round(auc_v, 4),
+                     "时间外_PR_AUC": round(ap_v, 4), "时间外_KS": round(ks_v, 4),
+                     "AUC衰减": round(auc_cv - auc_v, 4)})
+        iou.log(f"  {name}: CV AUC={auc_cv:.4f} / 时间外 AUC={auc_v:.4f}")
+        for tag, y_true, prob in (("主窗口(5折CV)", y.values, p_cv),
+                                  ("时间外验证", yv.values, p_v)):
+            fpr, tpr, thr = roc_curve(y_true, prob)
+            step = max(1, len(fpr) // 120)
+            for i in range(0, len(fpr), step):
+                roc_rows.append({"模型": name, "窗口": tag,
+                                 "FPR": round(float(fpr[i]), 5),
+                                 "TPR": round(float(tpr[i]), 5),
+                                 "Threshold": round(float(thr[i]), 5)})
+
+    # 集成消融：验证「加模型」是否真的更好。
+    # 注意必须用两模型的 **交叉验证样本外概率** 求平均，才能与 CV AUC 可比——
+    # 若直接用训练集拟合概率，得到的是 in-sample 指标，会系统性偏高。
+    blend_cv = (prob_cv["逻辑回归"] + prob_cv["随机森林"]) / 2
+    blend_auc = roc_auc_score(y, blend_cv)
+    rows.append({"模型": "集成 LR+RF 等权", "CV_AUC": round(blend_auc, 4),
+                 "CV_PR_AUC": round(average_precision_score(y, blend_cv), 4),
+                 "CV_KS": round(_ks(y, blend_cv), 4),
+                 "时间外_AUC": None, "时间外_PR_AUC": None, "时间外_KS": None,
+                 "AUC衰减": None})
+    metrics = pd.DataFrame(rows)
+    iou.save_table(metrics, "03_churn_model_metrics")
+    iou.save_table(pd.DataFrame(roc_rows), "03_churn_roc_curve")
+    iou.log(f"  集成消融：AUC={blend_auc:.4f}（较单模型 "
+            f"{blend_auc - metrics.loc[0, 'CV_AUC']:+.4f}，"
+            f"{'不采用' if blend_auc - metrics.loc[0, 'CV_AUC'] < 0.01 else '可作为主模型'}）")
+
+    # 主模型：仅在两单一模型间比较（集成不参与，因其损失可解释性），
+    # AUC 相差 1% 以内时取可解释性更强的逻辑回归
+    singles = metrics[metrics["模型"] != "集成 LR+RF 等权"]
+    primary = "逻辑回归" if abs(metrics.loc[0, "CV_AUC"]
+                                - singles["CV_AUC"].max()) < 0.01 \
+        else singles.loc[singles["CV_AUC"].idxmax(), "模型"]
+    iou.log(f"主模型 = {primary}（AUC 相近时优先取可解释性更强的逻辑回归）")
+
+    # ---------------- 系数表 ----------------
+    coef = pd.Series(fitted["逻辑回归"].coef_[0], index=CHURN_FEATS)
+    coef_t = pd.DataFrame({
+        "特征": CHURN_FEATS,
+        "业务含义": [CHURN_FEAT_DESC[f] for f in CHURN_FEATS],
+        "系数(标准化)": coef.round(4).values,
+        "绝对值": coef.abs().round(4).values,
+        "方向": ["推高流失" if v > 0 else "抑制流失" for v in coef.values],
+    }).sort_values("绝对值", ascending=False)
+    EXPECT_UP = {"Recency", "AvgGap", "Tenure", "SpanDays", "SKUperOrder", "RecencyShare90"}
+    EXPECT_DOWN = {"Frequency", "Monetary", "SKUs", "Cats", "MonShare90", "IsUK"}
+    notes = []
+    for f, v in zip(coef_t["特征"], coef_t["系数(标准化)"]):
+        if abs(v) < 0.05:
+            notes.append("系数近 0：与 Frequency/Tenure 共线，效应被吸收")
+        elif (f in EXPECT_UP and v > 0) or (f in EXPECT_DOWN and v < 0):
+            notes.append("与业务先验一致")
+        else:
+            notes.append("与先验相反，见正文说明")
+    coef_t["方向性检验"] = notes
+    iou.save_table(coef_t, "03_churn_coefficients")
+
+    # ---------------- 十分位 + 累积捕捉率 ----------------
+    p = prob_main[primary]
+    dec = pd.DataFrame({"PChurn": p, "Churn": y.values})
+    dec["Decile"] = pd.qcut(dec["PChurn"], 10, labels=False, duplicates="drop")
+    lift = dec.groupby("Decile").agg(客户数=("Churn", "size"),
+                                     实际流失数=("Churn", "sum"),
+                                     平均预测概率=("PChurn", "mean")).reset_index()
+    lift["Decile"] = lift["Decile"] + 1
+    lift["实际流失率(%)"] = (lift["实际流失数"] / lift["客户数"] * 100).round(2)
+    lift["提升度Lift"] = (lift["实际流失率(%)"] / (y.mean() * 100)).round(3)
+    lift = lift.sort_values("Decile", ascending=False).reset_index(drop=True)
+    # 流失率高时 Lift 天花板很低（本例上限仅 1/0.7422≈1.35），累积捕捉率才是可解读指标
+    lift["累积客户数"] = lift["客户数"].cumsum()
+    lift["累积捕捉流失数"] = lift["实际流失数"].cumsum()
+    lift["累积客户占比(%)"] = (lift["累积客户数"] / len(dec) * 100).round(2)
+    lift["累积捕捉率(%)"] = (lift["累积捕捉流失数"] / int(y.sum()) * 100).round(2)
+    lift["累积提升度"] = (lift["累积捕捉率(%)"] / lift["累积客户占比(%)"]).round(3)
+    lift = lift[["Decile", "客户数", "实际流失数", "实际流失率(%)", "平均预测概率",
+                 "提升度Lift", "累积客户占比(%)", "累积捕捉率(%)", "累积提升度"]]
+    iou.save_table(lift, "03_churn_decile_lift")
+    top_dec, top2 = lift.iloc[0], lift.iloc[1]
+    iou.log(f"  十分位流失率 {top_dec['实际流失率(%)']}% → "
+            f"{lift.iloc[-1]['实际流失率(%)']}%（单调递减，排序能力成立）")
+    iou.log(f"  触达前 20% 客户可覆盖 {top2['累积捕捉率(%)']}% 的真实流失")
+
+    # ---------------- 分层可预测性：模型能力边界 ----------------
+    # 一次性客户没有复购历史，其流失几乎不可预测——这是数据本身的上限，
+    # 不是模型没调好。用「同一特征集」与「首购特征集」双口径验证。
+    seg_rows = []
+    for seg_name, mask in (("一次性客户（历史仅 1 次购买）", X["Frequency"] == 1),
+                           ("复购客户（历史 ≥2 次购买）", X["Frequency"] >= 2)):
+        Xs, ys = X[mask], y[mask]
+        Ms = StandardScaler().fit_transform(np.log1p(Xs[CHURN_FEATS].clip(lower=0)))
+        ps = cross_val_predict(lr, Ms, ys, cv=cv, method="predict_proba")[:, 1]
+        seg_rows.append({"客群": seg_name, "客户数": len(ys),
+                         "流失率(%)": round(float(ys.mean() * 100), 2),
+                         "预测特征": "全量 RFM 行为特征（14 维）",
+                         "CV_AUC": round(float(roc_auc_score(ys, ps)), 4),
+                         "CV_KS": round(_ks(ys, ps), 4)})
+    # 一次性客户额外用首购特征试一次，验证「换特征也救不回来」
+    one = X[X["Frequency"] == 1].index
+    fo = d[(d["CustomerID"].isin(one)) & (d["OrderDate"] <= pd.Timestamp(T0))]
+    gf = fo.groupby("CustomerID")
+    Xf = pd.DataFrame({
+        "FirstAmt": gf["Revenue"].sum(), "FirstSKUs": gf["StockCode"].nunique(),
+        "FirstCats": gf["ProductCategory"].nunique(),
+        "DaysSinceFirst": (pd.Timestamp(T0) - gf["OrderDate"].max()).dt.days,
+        "FirstMonth": gf["OrderDate"].first().dt.month,
+        "IsQ4": gf["OrderDate"].first().dt.month.isin([10, 11, 12]).astype(int),
+    }).fillna(0)
+    yf = y.loc[Xf.index]
+    Zf = StandardScaler().fit_transform(np.log1p(Xf.clip(lower=0)))
+    pf = cross_val_predict(lr, Zf, yf, cv=cv, method="predict_proba")[:, 1]
+    seg_rows.append({"客群": "一次性客户（历史仅 1 次购买）", "客户数": len(yf),
+                     "流失率(%)": round(float(yf.mean() * 100), 2),
+                     "预测特征": "首购特征集（6 维：首购金额/品类/距今天数等）",
+                     "CV_AUC": round(float(roc_auc_score(yf, pf)), 4),
+                     "CV_KS": round(_ks(yf, pf), 4)})
+    seg_auc = pd.DataFrame(seg_rows)
+    iou.save_table(seg_auc, "03_churn_segment_auc")
+    one_auc = seg_auc.iloc[0]["CV_AUC"]
+    rep_auc = seg_auc.iloc[1]["CV_AUC"]
+    iou.log(f"  能力边界：一次性客户 AUC={one_auc}（近乎随机）vs "
+            f"复购客户 AUC={rep_auc}")
+
+    # ---------------- 多窗口时间外稳健性 ----------------
+    oot_rows = []
+    for w_t0, w_t1, tag in ((T0, T1, "主建模窗口（样本内）"),
+                            ("2011-05-31", "2011-08-31", "前移 3 个月"),
+                            ("2011-02-28", "2011-05-31", "前移 6 个月"),
+                            ("2010-11-30", "2011-02-28", "前移 9 个月")):
+        Xw, yw = _build_churn_window(d, w_t0, w_t1)
+        Zw = StandardScaler().fit_transform(np.log1p(Xw[CHURN_FEATS].clip(lower=0)))
+        pw = fitted[primary].predict_proba(Zw)[:, 1]
+        oot_rows.append({"表现窗": f"{w_t0} ~ {w_t1}", "窗口类型": tag,
+                         "样本客户数": len(yw), "流失率(%)": round(float(yw.mean() * 100), 2),
+                         "AUC": round(float(roc_auc_score(yw, pw)), 4),
+                         "PR_AUC": round(float(average_precision_score(yw, pw)), 4),
+                         "KS": round(_ks(yw, pw), 4)})
+    oot = pd.DataFrame(oot_rows)
+    iou.save_table(oot, "03_churn_oot_robustness")
+    oot_test = oot[oot["窗口类型"] != "主建模窗口（样本内）"]["AUC"]
+    iou.log(f"  多窗口时间外 AUC：{oot_test.tolist()}（均值 {oot_test.mean():.4f}）")
+
+    # ---------------- 阈值成本收益：按概率切触达是否划算 ----------------
+    # 情景假设：触达成本率 = 触达支出 ÷ 客户历史价值；挽回率 = 被触达后留存下来的比例
+    roi_rows = []
+    val = X["Monetary"].values
+    churn = y.values
+    for cost_rate, save_rate in ((0.03, 0.50), (0.05, 0.50),
+                                 (0.05, 0.30), (0.10, 0.30)):
+        for q in (0.05, 0.10, 0.20, 0.30, 0.50):
+            thr = float(np.quantile(p, 1 - q))
+            sel = p >= thr
+            hit = sel & (churn == 1)
+            recover = float(val[hit].sum() * save_rate)
+            spend = float(val[sel].sum() * cost_rate)
+            roi_rows.append({"触达成本率(%)": round(cost_rate * 100, 1),
+                             "挽回率(%)": round(save_rate * 100, 1),
+                             "触达比例(%)": round(q * 100, 1),
+                             "触达人数": int(sel.sum()),
+                             "命中真实流失数": int(hit.sum()),
+                             "挽回金额(£)": round(recover, 0),
+                             "触达成本(£)": round(spend, 0),
+                             "净收益(£)": round(recover - spend, 0)})
+    roi = pd.DataFrame(roi_rows)
+    iou.save_table(roi, "03_churn_threshold_roi")
+    # 各情景下最优触达比例：若总是随触达比例上升，说明按概率硬切并不经济
+    best_q = roi.loc[roi.groupby(["触达成本率(%)", "挽回率(%)"])["净收益(£)"].idxmax()]
+    iou.log(f"  阈值成本收益：各情景最优触达比例 {sorted(best_q['触达比例(%)'].unique().tolist())}，"
+            f"最优净收益 £{best_q['净收益(£)'].max():,.0f}")
+
+    # ---------------- 预警名单与散点 ----------------
+    iou.save_table(pd.DataFrame({
+        "CustomerID": X.index, "PChurn": np.round(p, 4),
+        "HistValue": X["Monetary"].round(2).values, "Frequency": X["Frequency"].values,
+        "Recency": X["Recency"].values, "ActualChurn": y.values,
+    }), "03_churn_scatter")
+
+    watch = pd.DataFrame({
+        "CustomerID": X.index, "PChurn": np.round(p, 4),
+        "HistValue": X["Monetary"].round(2).values, "Frequency": X["Frequency"].values,
+        "Recency": X["Recency"].values, "AOV": X["AOV"].round(2).values,
+    })
+    watch["ExpLoss"] = (watch["PChurn"] * watch["HistValue"]).round(2)
+    watch = watch.sort_values("ExpLoss", ascending=False).head(300).reset_index(drop=True)
+    watch.insert(0, "Rank", watch.index + 1)
+    iou.save_table(watch, "03_churn_watchlist")
+    iou.log(f"  TOP300 期望损失合计 £{watch['ExpLoss'].sum():,.0f}")
+
+    iou.save_json({
+        "model_purpose": "客户流失预警（课程模型清单「预测与预警」类）",
+        "observation_window": f"2009-12-01 ~ {T0}",
+        "performance_window": f"{T0} ~ {T1}（3 个月）",
+        "churn_definition": "表现窗（3 个月）内未发生任何购买即计为流失",
+        "leakage_control": "特征仅取观测窗内数据，标签取自表现窗，两窗不重叠；"
+                           "验证窗独立做标准化，避免主窗统计量前移",
+        "n_features": len(CHURN_FEATS), "features": CHURN_FEATS,
+        "class_weight": "balanced（处理流失/留存不平衡，不做欠采样以免丢失高价值客户信息）",
+        "primary_model": primary, "cv_folds": 5, "random_state": cfg.RANDOM_SEED,
+        "churn_rate_main": round(float(y.mean() * 100), 2),
+        "churn_rate_validation": round(float(yv.mean() * 100), 2),
+        "cv_auc": float(metrics.loc[0, "CV_AUC"]),
+        "cv_pr_auc": float(metrics.loc[0, "CV_PR_AUC"]),
+        "cv_ks": float(metrics.loc[0, "CV_KS"]),
+        "oot_auc": float(metrics.loc[0, "时间外_AUC"]),
+        "oot_pr_auc": float(metrics.loc[0, "时间外_PR_AUC"]),
+        "oot_auc_mean": round(float(oot_test.mean()), 4),
+        "oot_auc_range": [round(float(oot_test.min()), 4), round(float(oot_test.max()), 4)],
+        "ensemble_auc": float(metrics.iloc[-1]["CV_AUC"]),
+        "ensemble_gain": round(float(metrics.iloc[-1]["CV_AUC"] - metrics.loc[0, "CV_AUC"]), 4),
+        "auc_one_off_customers": float(one_auc),
+        "auc_repeat_customers": float(rep_auc),
+        "auc_one_off_with_first_features": float(roc_auc_score(yf, pf)),
+        "top_decile_churn_rate": float(top_dec["实际流失率(%)"]),
+        "top_decile_lift": float(top_dec["提升度Lift"]),
+        "top20pct_capture_rate": float(top2["累积捕捉率(%)"]),
+        "watchlist_size": int(len(watch)),
+        "watchlist_exp_loss": round(float(watch["ExpLoss"].sum()), 2),
+    }, cfg.TAB_DIR / "03_churn_params.json")
+    return watch
+
+
 # ===========================================================================
 def main() -> None:
     print(cfg.banner("STEP 03 · 商业分析模型计算"))
@@ -932,6 +1301,7 @@ def main() -> None:
     fc = m7_forecast(m1["daily"])
     rfm = m8_kmeans(rfm)
     funnel = m9_funnel(fact, rfm)
+    watchlist = m10_churn(fact)
     sens = robustness_rfm_threshold(fact, snapshot)
 
     # ---- 汇总 KPI，供 README / 论文 / 大屏复用

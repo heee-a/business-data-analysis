@@ -27,6 +27,7 @@ outputs/html/_test_map.html
 outputs/html/_*
 outputs/figures/_*
 outputs/_preview/
+outputs/_det/
 outputs/_待用户确认删除/
 
 # -----------------------------------------------------------------------------

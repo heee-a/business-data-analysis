@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>基于 UCI Online Retail II 的零售商业数据分析 | 期末大作业</title>
-<meta name="description" content="合规取数 · 数据治理 · 9 类商业模型 · 35 张 Python 图表 · 20 组件交互大屏 —— 商业数据分析期末大作业">
+<meta name="description" content="合规取数 · 数据治理 · 10 类商业模型 · 37 张 Python 图表 · 20 组件交互大屏 —— 商业数据分析期末大作业">
 <style>
 :root{
   --bg:#0b1020; --bg2:#111834; --card:#151d3b; --line:#243056;
@@ -112,7 +112,7 @@ footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10
     <h1>基于 <span>UCI Online Retail II</span> 的<br>跨国零售用户价值与品类结构分析</h1>
     <p class="sub">
       以 UCI Machine Learning Repository 公开数据集（#502，CC BY 4.0）为对象，
-      完成「合规取数 → 清洗治理 → 9 类商业模型 → 35 张 Python 图表 → 20 组件交互大屏 → 商业洞察」的端到端流程。
+      完成「合规取数 → 清洗治理 → 10 类商业模型 → 37 张 Python 图表 → 20 组件交互大屏 → 商业洞察」的端到端流程。
       全流程零爬虫、零 BI 软件，随机种子固定为 2026，克隆后一条命令即可完整复现。
     </p>
     <div class="meta">
@@ -126,7 +126,7 @@ footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10
     <div class="btnrow">
       <a class="btn p" href="dashboard/dashboard_offline.html" target="_blank">打开交互式大屏</a>
       <a class="btn s" href="https://github.com/heee-a/business-data-analysis" target="_blank">查看源码仓库</a>
-      <a class="btn s" href="#gallery">浏览 35 张图表</a>
+      <a class="btn s" href="#gallery">浏览 37 张图表</a>
       <a class="btn s" href="#model">模型与参数</a>
       <a class="btn s" href="#action">商业建议</a>
     </div>
@@ -186,7 +186,7 @@ footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10
 
 <section id="gallery">
   <div class="wrap">
-    <h2>图表作品（35 张，200dpi，全 Python 生成）</h2>
+    <h2>图表作品（37 张，200dpi，全 Python 生成）</h2>
     <p class="lead">对照《Excel 数据可视化——从图表到数据大屏》复现 23 种模板图型 + 10 张业务模型图。点击任意图表可放大查看。</p>
     <div class="tabs" id="tabs">
       <span class="tab on" data-cat="all">全部 35</span>
@@ -200,7 +200,7 @@ footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10
 <section id="model">
   <div class="wrap">
     <h2>商业分析模型与参数依据</h2>
-    <p class="lead">9 类模型覆盖「卖什么 / 卖给谁 / 接下来会怎样」三大决策场景，每个参数与阈值均给出业务依据，并对关键阈值做了稳健性检验。</p>
+    <p class="lead">10 类模型覆盖「卖什么 / 卖给谁 / 接下来会怎样」三大决策场景，每个参数与阈值均给出业务依据，并对关键阈值做了稳健性检验。</p>
     <table class="tbl">
       <thead><tr><th>#</th><th>模型</th><th>关键参数与业务依据</th><th>核心图</th></tr></thead>
       <tbody>
@@ -213,6 +213,7 @@ footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10
         <tr><td>M7</td><td>SARIMA / Holt-Winters</td><td>周周期 7 天；<b>30 天留出回测</b>；输出点预测 + <b>95% 置信区间</b></td><td>fig33</td></tr>
         <tr><td>M8</td><td>K-Means 用户分群</td><td><b>分位数变换</b>→正态（消除 RFM 右偏）；K 由<b>轮廓系数</b>确定（K = 2，<b>0.7412</b>）；seed = 2026</td><td>fig34</td></tr>
         <tr><td>M9</td><td>复购漏斗</td><td>五级转化，定位「第 2 次购买」瓶颈</td><td>fig35</td></tr>
+      <tr><td>M10</td><td>客户流失预警</td><td>观测窗/表现窗严格切分防泄漏；LogReg 主模型 + 时间外验证 + 能力边界检验</td><td>fig36/37</td></tr>
       </tbody>
     </table>
     <p class="lead" style="margin-top:22px">预测回测结果（测试集 30 天）</p>
@@ -261,6 +262,42 @@ footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10
   </div>
 </section>
 
+<section>
+  <div class="wrap">
+    <h2>客户流失预警：模型能力的边界</h2>
+    <p class="lead">流失预警最容易被质疑的不是「AUC 多少」，而是三个更根本的问题：<b>这个分数是模型的极限还是调参不够？换个时间窗口还成立吗？按概率阈值触达真的划算吗？</b>本项目逐一给出可核查的答案。</p>
+
+    <p class="lead" style="margin-top:26px">① 分层可预测性：一次性客户的流失<b>不可预测</b>，这是数据的上限</p>
+    <table class="tbl">
+      <thead><tr><th>客群</th><th>客户数</th><th>流失率</th><th>预测特征</th><th>CV_AUC</th><th>结论</th></tr></thead>
+      <tbody>
+        <tr><td>一次性客户（历史仅 1 次购买）</td><td>1,593</td><td>86.06%</td><td>全量 RFM 行为特征（14 维）</td><td>0.5481</td><td>近乎随机，不可预测</td></tr>
+        <tr><td>一次性客户</td><td>1,593</td><td>86.06%</td><td>首购特征集（6 维，换特征重试）</td><td>0.5464</td><td>换特征也救不回来</td></tr>
+        <tr><td>复购客户（历史 ≥2 次购买）</td><td>1,662</td><td>62.88%</td><td>全量 RFM 行为特征（14 维）</td><td><b>0.7022</b></td><td>有实际预测能力</td></tr>
+      </tbody>
+    </table>
+    <p class="lead">一次性客户占样本 49%，他们没有可供学习的行为历史。为排除「特征选得不好」这一解释，另用首购特征集（首购金额、品类数、距观测窗末天数等）重做，AUC 仍为 0.5464。<b>这个「不可预测」本身就是业务结论</b>：对这批客户做精准挽留是无效投入，资源应转向改善首购体验。</p>
+
+    <p class="lead" style="margin-top:26px">② 多窗口时间外稳健性：换个窗口还成立</p>
+    <table class="tbl">
+      <thead><tr><th>表现窗</th><th>窗口类型</th><th>样本数</th><th>流失率</th><th>AUC</th><th>KS</th></tr></thead>
+      <tbody>
+        <tr><td>2011-08-31 ~ 2011-11-30</td><td>主建模窗口（样本内拟合）</td><td>3,255</td><td>74.22%</td><td>0.7292</td><td>0.3533</td></tr>
+        <tr><td>2011-05-31 ~ 2011-08-31</td><td>前移 3 个月</td><td>3,016</td><td>80.01%</td><td><b>0.7439</b></td><td>0.3662</td></tr>
+        <tr><td>2011-02-28 ~ 2011-05-31</td><td>前移 6 个月</td><td>2,682</td><td>79.60%</td><td>0.7201</td><td>0.3473</td></tr>
+        <tr><td>2010-11-30 ~ 2011-02-28</td><td>前移 9 个月</td><td>2,448</td><td>79.49%</td><td>0.7100</td><td>0.3411</td></tr>
+      </tbody>
+    </table>
+    <p class="lead">三个时间外窗口 AUC 落在 <b>0.7100–0.7439</b>，波动仅 0.034 且无衰减趋势——模型学到的是跨时间稳定的行为规律，不是某个窗口的噪声。</p>
+
+    <p class="lead" style="margin-top:26px">③ 阈值成本收益：按概率硬切<b>不经济</b>，应按期望损失排序</p>
+    <p class="lead">在 4 组「触达成本率 × 挽回率」情景下各扫描 6 档触达比例（5%–50%），<b>所有情景的净收益都随触达比例单调上升，在扫描上限 50% 处仍未出现峰值</b>。这说明高低概率客户之间的<b>价值差异</b>比概率差异更能决定「走了亏多少」。因此预警名单按 <b>期望损失 = 流失概率 × 历史累计消费</b> 排序，取前 300 位，合计期望损失 <b>£365,989</b>（相当于观测窗总营收的 9.12%）。</p>
+
+    <p class="lead" style="margin-top:26px">④ 集成消融：不值得</p>
+    <p class="lead">逻辑回归与随机森林的交叉验证样本外概率等权平均后，AUC 仅从 0.7241 升至 0.7244（<b>+0.0003</b>），远不足以抵消复杂度与可解释性损失，故采用单一逻辑回归。方法细节：集成概率必须来自交叉验证的样本外预测，若直接用训练集拟合概率求平均，会得到 0.7625 这类虚高值。</p>
+  </div>
+</section>
+
 <section id="action">
   <div class="wrap">
     <h2>商业建议与落地优先级</h2>
@@ -287,7 +324,7 @@ footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10
   <div class="wrap">
     <h2>一键复现</h2>
     <p class="lead">随机种子在 <code>scripts/utils/config.py</code> 中固定为 2026，任何人克隆后均可得到完全一致的结果。
-      <b style="color:var(--good)">已实测：独立目录复跑后 35 张图 + 78 张结果表 MD5 全部一致</b>，
+      <b style="color:var(--good)">已实测：独立目录复跑后 37 张图 + 99 张结果表 MD5 全部一致</b>，
       详见仓库 <code>docs/复现验证报告.md</code>。</p>
     <pre><span class="c"># 1. 克隆仓库</span>
 <span class="k">git clone</span> https://github.com/heee-a/business-data-analysis.git
@@ -317,7 +354,7 @@ footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10
     </div>
     <p style="margin-top:18px">
       嘉兴大学 数据科学学院 · 数据科学与大数据技术 大数据241班 · 秦子睿 · 2026 年秋季学期 ·
-      完整论文见仓库 <code>docs/</code> 目录（Word + PDF，38 页，正文嵌入图 11 张 + 附录图表 39 张）·
+      完整论文见仓库 <code>docs/</code> 目录（Word + PDF，44 页，正文嵌入图 13 张 + 附录图表 39 张）·
       另有 <code>docs/图表索引.md</code>、<code>docs/数据来源合规声明.md</code>、<code>docs/复现验证报告.md</code> ·
       <a href="https://github.com/heee-a/business-data-analysis" target="_blank">GitHub 仓库</a>
     </p>

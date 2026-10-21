@@ -2,18 +2,19 @@
 """
 04_visuals.py —— 数据可视化（全 Python 实现）
 ============================================
-产出 35 张静态图，分为两类：
+产出 37 张静态图，分为两类：
 
   A. 模板复现类（fig01–fig25，共 25 种）
      对照《Excel数据可视化——从图表到数据大屏》中的典型模板，使用
      Matplotlib/Seaborn 还原其图表类型、布局结构、配色方案、标签样式、
      图例位置与标题设计。
 
-  B. 业务模型类（fig26–fig35，共 10 张）
-     与 03_analysis.py 中 9 类模型一一对应：
+  B. 业务模型类（fig26–fig37，共 12 张）
+     与 03_analysis.py 中 10 类模型一一对应：
      M1 移动平均(fig25) → M2 RFM(fig26,27) → M3 同期群(fig28)
      → M4 帕累托/ABC(fig29) → M5 关联规则(fig30,31) → M6 波士顿矩阵(fig32)
      → M7 预测(fig33) → M8 K-Means(fig34) → M9 复购漏斗(fig35)
+     → M10 流失预警(fig36,37)
 
 规范：中文字体正常显示；坐标轴与单位完整标注；统一配色；分辨率 200dpi；
       统一命名 figNN_<主题>.png；底部统一标注数据来源。
@@ -910,9 +911,122 @@ def fig35_funnel(funnel: pd.DataFrame) -> Path:
     return _out(fig, "fig35_repurchase_funnel")
 
 
+def fig36_churn_diagnostics(roc: pd.DataFrame, lift: pd.DataFrame,
+                            coef: pd.DataFrame) -> Path:
+    """M10：流失预警三合一诊断图（ROC / 十分位 / 系数方向）。"""
+    fig = plt.figure(figsize=(15.5, 5.6))
+    gs = fig.add_gridspec(1, 3, width_ratios=[1, 1, 1.15], wspace=0.30)
+
+    # ---- (a) ROC：主窗口交叉验证 vs 时间外验证 ----
+    # 颜色区分模型、线型区分验证方式：两模型的 CV/OOT 曲线高度重合，
+    # 恰好说明「换个时间窗口判别力不变」，因此线型必须可辨。
+    ax = fig.add_subplot(gs[0, 0])
+    style = {"逻辑回归": ("#2E75B6", "o"), "随机森林": ("#C55A11", "s")}
+    for mdl, grp in roc.groupby("模型"):
+        c, mk = style.get(mdl, ("#7F7F7F", "^"))
+        for win, wgrp in grp.groupby("窗口"):
+            wgrp = wgrp.sort_values("FPR")
+            is_cv = win.startswith("主")
+            ax.plot(wgrp["FPR"], wgrp["TPR"], ls="-" if is_cv else "--",
+                    color=c, lw=2.0 if is_cv else 1.6, marker=mk, markersize=2.6,
+                    markevery=14, label=f"{mdl} · {'5折CV' if is_cv else '时间外OOT'}")
+    ax.plot([0, 1], [0, 1], color="#999999", lw=1, ls=":")
+    ax.set_xlabel("假正例率 FPR")
+    ax.set_ylabel("真正例率 TPR")
+    ax.set_title("(a) ROC 曲线：交叉验证 vs 时间外", fontsize=11)
+    ax.legend(fontsize=7.2, loc="lower right", frameon=True, framealpha=0.9)
+    ax.set_xlim(-0.02, 1.02); ax.set_ylim(-0.02, 1.02)
+    ax.grid(alpha=0.25, lw=0.5)
+
+    # ---- (b) 十分位流失率 + 累积捕捉率 ----
+    ax = fig.add_subplot(gs[0, 1])
+    lf = lift.sort_values("Decile")
+    colors = ["#C00000" if v >= 80 else "#ED7D31" if v >= 70 else "#FFC000"
+              for v in lf["实际流失率(%)"]]
+    ax.bar(lf["Decile"], lf["实际流失率(%)"], color=colors, width=0.72, zorder=3)
+    ax.axhline(74.22, color="#2E75B6", lw=1.4, ls="--", zorder=4)
+    ax.text(0.6, 75.6, "全样本流失率 74.22%", fontsize=8, color="#2E75B6")
+    for x, v in zip(lf["Decile"], lf["实际流失率(%)"]):
+        ax.text(x, v + 1.1, f"{v:.1f}", ha="center", fontsize=7.6)
+    ax.set_xlabel("预测概率十分位（1 = 最不可能流失 → 10 = 最可能）")
+    ax.set_ylabel("实际流失率（%）")
+    ax.set_ylim(0, 105)
+    ax.set_title("(b) 十分位实际流失率：单调递减", fontsize=11)
+    ax.grid(axis="y", alpha=0.25, lw=0.5)
+
+    ax2 = ax.twinx()
+    ax2.plot(lf["Decile"], lf["累积捕捉率(%)"], color="#375623", lw=1.8, marker="D",
+             markersize=3.4, label="累积捕捉率")
+    ax2.plot(lf["Decile"], lf["累积客户占比(%)"], color="#808080", lw=1.3, ls=":",
+             label="随机基线（= 客户占比）")
+    ax2.set_ylabel("累积捕捉率（%）", color="#375623")
+    ax2.set_ylim(0, 105)
+    ax2.legend(fontsize=7.2, loc="center right")
+    ax2.tick_params(axis="y", colors="#375623")
+
+    # ---- (c) 系数方向（逻辑回归可解释性） ----
+    ax = fig.add_subplot(gs[0, 2])
+    cf = coef.sort_values("系数(标准化)")
+    cols = ["#C00000" if v > 0 else "#2E75B6" for v in cf["系数(标准化)"]]
+    ax.barh(cf["特征"], cf["系数(标准化)"], color=cols, height=0.70, zorder=3)
+    ax.axvline(0, color="#333333", lw=1)
+    ax.set_xlabel("逻辑回归标准化系数（正 = 推高流失概率）")
+    ax.set_title("(c) 特征方向与业务先验一致", fontsize=11)
+    ax.tick_params(axis="y", labelsize=8.2)
+    ax.grid(axis="x", alpha=0.25, lw=0.5)
+    for i, (f, v) in enumerate(zip(cf["特征"], cf["系数(标准化)"])):
+        ax.text(v + (0.02 if v >= 0 else -0.02), i, f"{v:+.2f}",
+                va="center", ha="left" if v >= 0 else "right", fontsize=7.4)
+    ax.set_xlim(cf["系数(标准化)"].min() - 0.22, cf["系数(标准化)"].max() + 0.22)
+
+    fig.suptitle("图36  客户流失预警模型诊断：判别力、区分度与可解释性", fontsize=13.5, y=0.99)
+    return _out(fig, "fig36_churn_diagnostics")
+
+
+def fig37_churn_value_scatter(scatter: pd.DataFrame, watch: pd.DataFrame) -> Path:
+    """M10：客户价值 × 流失概率全景图（预警名单的定位依据）。"""
+    fig, ax = plt.subplots(figsize=(11.5, 6.8))
+    s = scatter.copy()
+    alive = s[s["ActualChurn"] == 0]
+    lost = s[s["ActualChurn"] == 1]
+    ax.scatter(alive["HistValue"], alive["PChurn"], s=13, c="#A6A6A6", alpha=0.42,
+               edgecolors="none", label=f"表现窗内留存（{len(alive):,} 人）", zorder=2)
+    ax.scatter(lost["HistValue"], lost["PChurn"], s=15, c="#C55A11", alpha=0.38,
+               edgecolors="none", label=f"表现窗内流失（{len(lost):,} 人）", zorder=3)
+    top = watch.head(40)
+    ax.scatter(top["HistValue"], top["PChurn"], s=62, facecolors="none",
+               edgecolors="#C00000", linewidths=1.5,
+               label=f"期望损失 TOP40（共 {len(watch)} 人）", zorder=5)
+
+    # 决策辅助线：价值中位数 + 概率中位数
+    mv, mp = s["HistValue"].median(), s["PChurn"].median()
+    ax.axvline(mv, color="#7F7F7F", lw=1.1, ls="--", zorder=4)
+    ax.axhline(mp, color="#7F7F7F", lw=1.1, ls="--", zorder=4)
+    xmax = s["HistValue"].max() * 1.6
+    ax.text(xmax * 0.92, 0.965, "高价值 · 高风险\n优先挽留", ha="right", va="top",
+            fontsize=9, color="#C00000", fontweight="bold")
+    ax.text(xmax * 0.92, 0.045, "高价值 · 低风险\n重点维护", ha="right", va="bottom",
+            fontsize=9, color="#375623", fontweight="bold")
+    ax.text(mv * 0.55, 0.965, "低价值 · 高风险\n低成本触达", ha="center", va="top",
+            fontsize=9, color="#7F6000")
+    ax.text(mv * 0.55, 0.045, "低价值 · 低风险\n暂不投入", ha="center", va="bottom",
+            fontsize=9, color="#595959")
+
+    ax.set_xscale("log")
+    ax.set_xlabel("客户历史累计消费额（英镑，对数轴）")
+    ax.set_ylabel("模型预测流失概率")
+    ax.set_ylim(-0.04, 1.06)
+    ax.set_title("图37  客户价值 × 流失概率全景与预警名单定位", pad=12)
+    # 图例放到坐标区下方，避免遮挡左上/右上的象限决策标注
+    ax.legend(fontsize=8.6, loc="upper center", bbox_to_anchor=(0.5, -0.13),
+              ncol=3, framealpha=0.92)
+    ax.grid(alpha=0.25, lw=0.5, which="both")
+    return _out(fig, "fig37_churn_value_scatter")
+
+
 # ===========================================================================
 def main() -> None:
-    print(cfg.banner("STEP 04 · 数据可视化（35 张图，全 Python 实现）"))
+    print(cfg.banner("STEP 04 · 数据可视化（37 张图，全 Python 实现）"))
     iou.log(f"字体设置：{st.CHOSEN_FONT}")
 
     monthly = _load("03_mom_yoy_monthly.csv")
@@ -939,6 +1053,11 @@ def main() -> None:
     klabels = _load("03_kmeans_customer_labels.csv")
     kprof = _load("03_kmeans_cluster_profile.csv")
     funnel = _load("03_repurchase_funnel.csv")
+    churn_roc = _load("03_churn_roc_curve.csv")
+    churn_lift = _load("03_churn_decile_lift.csv")
+    churn_coef = _load("03_churn_coefficients.csv")
+    churn_scatter = _load("03_churn_scatter.csv")
+    churn_watch = _load("03_churn_watchlist.csv")
     orders = pd.read_csv(cfg.CLEAN_DIR / "dim_orders.csv", parse_dates=["OrderDate"])
     fact = pd.read_csv(cfg.CLEAN_DIR / "fact_order_items.csv", parse_dates=["OrderDate"],
                        low_memory=False)
@@ -995,7 +1114,7 @@ def main() -> None:
     _register(25, "fig25_moving_average", "模板/模型", "多重折线图", "MA7/MA30/MA90 趋势平滑")
     fig25_moving_average(daily)
 
-    iou.log("—— B. 业务模型类（fig26–fig35）——")
+    iou.log("—— B. 业务模型类（fig26–fig37）——")
     _register(26, "fig26_rfm_scatter_ch8", "业务模型图", "M2 RFM 模型", "RFM 八分类气泡矩阵")
     fig26_rfm_scatter(rfm)
     _register(27, "fig27_rfm_segment_bar", "业务模型图", "M2 RFM 模型", "八分群客户规模 vs 金额贡献")
@@ -1016,6 +1135,12 @@ def main() -> None:
     fig34_kmeans(klabels, kprof)
     _register(35, "fig35_repurchase_funnel", "业务模型图", "M9 复购漏斗", "五级复购转化漏斗")
     fig35_funnel(funnel)
+    _register(36, "fig36_churn_diagnostics", "业务模型图", "M10 流失预警",
+              "ROC（含时间外）+ 十分位流失率 + 系数方向")
+    fig36_churn_diagnostics(churn_roc, churn_lift, churn_coef)
+    _register(37, "fig37_churn_value_scatter", "业务模型图", "M10 流失预警",
+              "客户价值 × 流失概率全景与预警名单定位")
+    fig37_churn_value_scatter(churn_scatter, churn_watch)
 
     # ---- 图表索引（CSV 中间件；完整的 Markdown 索引含大屏组件，由 06_report.py 汇总生成）
     idx_df = pd.DataFrame(_INDEX)

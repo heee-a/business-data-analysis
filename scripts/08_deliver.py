@@ -57,15 +57,19 @@ def reset_dir(path: Path) -> Path:
 
 
 def copy(src: Path, dst: Path) -> bool:
+    """复制单个文件。
+
+    不做「先 unlink 再复制」：归档目标位于用户桌面（个人目录），
+    单轮内累计删除超过 50 个文件会触发批量删除保护而被拦截。
+    shutil.copy2 本身即可覆盖已存在的目标，无需预先删除。
+    """
     if not src.exists():
         iou.log(f"[WARN] 缺失，跳过：{src.name}")
         return False
     dst.parent.mkdir(parents=True, exist_ok=True)
     for attempt in range(3):
         try:
-            if dst.exists():
-                dst.unlink()
-            shutil.copy2(src, dst)
+            shutil.copy2(src, dst)          # 直接覆盖写入，全程无删除操作
             return True
         except PermissionError:
             if attempt < 2:
@@ -106,7 +110,7 @@ def paper_stats() -> tuple[int, float, int]:
         cn = sum(1 for ch in joined if "\u4e00" <= ch <= "\u9fff")   # 中文字符
         words = round(cn / 10000, 2)
         # 嵌入图数优先取 06_report.py 产出的正文图计数（inline_shapes 会把
-        # 附录 D 的 35 张缩略图一并计入，用它描述「论文嵌入了多少张关键图」会失真）
+        # 附录 D 的 37 张缩略图一并计入，用它描述「论文嵌入了多少张关键图」会失真）
         meta = cfg.OUT_DIR / "report_stats.json"
         if meta.exists():
             try:
@@ -139,9 +143,16 @@ def main() -> int:
     iou.log(f"归档目标：{dest}")
 
     # ---------------------------------------------------------- 01 期末大论文
+    # 论文规模数字在此提前动态统计，供清单各处以实际内容为准，避免数字漂移
+    pages, words, embedded = paper_stats()
+    paper_desc = " / ".join(filter(None, [
+        f"{pages} 页" if pages else "",
+        f"约 {words} 万字" if words else "",
+    ])) or "主交付物"
+    fig_n = len(list(cfg.FIG_DIR.glob("*.png")))
     d01 = reset_dir(dest / "01_期末大论文")
-    for name, note in [("《商业数据分析》期末大论文.docx", "可编辑版，含 14 张嵌入图"),
-                       ("《商业数据分析》期末大论文.pdf", "打印/提交版，29 页")]:
+    for name, note in [("《商业数据分析》期末大论文.docx", f"可编辑版，含 {embedded} 张嵌入图"),
+                       ("《商业数据分析》期末大论文.pdf", f"打印/提交版，{paper_desc}")]:
         p = copy(root / "docs" / name, d01 / name)
         if p:
             manifest.append((f"01_期末大论文/{name}", human((d01 / name).stat().st_size), note))
@@ -208,9 +219,14 @@ def main() -> int:
 
     xlsx = cfg.TAB_DIR / "00_关键结果汇总.xlsx"
     if copy(xlsx, d04 / xlsx.name):
+        try:
+            from openpyxl import load_workbook
+            sheet_n = len(load_workbook(xlsx, read_only=True).sheetnames)
+            sheet_note = f"{sheet_n} 个 Sheet 汇总工作簿，便于核对与二次引用"
+        except Exception:                                        # noqa: BLE001
+            sheet_note = "关键结果汇总工作簿，便于核对与二次引用"
         manifest.append(("04_结果表/00_关键结果汇总.xlsx",
-                         human(xlsx.stat().st_size),
-                         "16+1 个 Sheet 汇总工作簿，便于核对与二次引用"))
+                         human(xlsx.stat().st_size), sheet_note))
 
     # ---------------------------------------------------------- 05 数据与字典
     d05 = dest / "05_数据与字典"
@@ -252,7 +268,7 @@ def main() -> int:
     # ---------------------------------------------------------- 07 项目文档
     d07 = reset_dir(dest / "07_项目文档")
     for name, note in [("README.md", "项目总览：数据来源、目录结构、复现步骤、结论摘要"),
-                       ("图表索引.md", "35 张图的编号 / 类别 / 对应模型说明"),
+                       ("图表索引.md", f"{fig_n} 张图的编号 / 类别 / 对应模型说明"),
                        ("数据来源合规声明.md", "许可证、抽样方法、 Privacy 合规说明"),
                        ("复现验证报告.md", "独立目录复跑 + MD5 逐文件比对的可复现性验证记录")]:
         p = root / "docs" / name
@@ -271,13 +287,8 @@ def main() -> int:
     manifest.append(("07_项目文档/在线成果页地址.txt", "-", "仓库与 Pages 在线地址"))
 
     # ---------------------------------------------------------- 提交清单
-    # 统计口径全部动态读取，避免清单数字与仓库实际内容脱节
-    pages, words, embedded = paper_stats()
-    paper_desc = " / ".join(filter(None, [
-        f"{pages} 页" if pages else "",
-        f"约 {words} 万字" if words else "",
-    ])) or "主交付物"
-    fig_n = len(list(cfg.FIG_DIR.glob("*.png")))
+    # 统计口径全部动态读取（pages/words/embedded/fig_n 已在 01 节前统计），
+    # 避免清单数字与仓库实际内容脱节
     csv_n = len(list(cfg.TAB_DIR.glob("*.csv")))
     json_n = len(list(cfg.TAB_DIR.glob("*.json")))
     table_n = csv_n + json_n

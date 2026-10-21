@@ -34,3 +34,5 @@ fig32,fig32_bcg_matrix.png,业务模型图,M6 波士顿矩阵,相对份额 × �
 fig33,fig33_forecast_ci.png,业务模型图,M7 时间序列预测,点预测 + 95% 置信区间 + 回测
 fig34,fig34_kmeans_clusters.png,业务模型图,M8 K-Means 分群,散点 + 分群画像对比
 fig35,fig35_repurchase_funnel.png,业务模型图,M9 复购漏斗,五级复购转化漏斗
+fig36,fig36_churn_diagnostics.png,业务模型图,M10 流失预警,ROC（含时间外）+ 十分位流失率 + 系数方向
+fig37,fig37_churn_value_scatter.png,业务模型图,M10 流失预警,客户价值 × 流失概率全景与预警名单定位

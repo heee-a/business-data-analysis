@@ -11,7 +11,7 @@ run_all.py —— 一键复现入口
     STEP 01  数据获取      scripts/01_load.py        官方 ZIP 下载 + 按发票抽样
     STEP 02  数据清洗      scripts/02_clean.py       去重/缺失/异常治理 + 星型模型
     STEP 03  分析模型      scripts/03_analysis.py    8 类商业模型 + 9 组业务图数据
-    STEP 04  静态图表      scripts/04_visuals.py     35 张 200dpi 图表
+    STEP 04  静态图表      scripts/04_visuals.py     37 张 200dpi 图表
     STEP 05  交互大屏      scripts/05_dashboard.py   4 标签页 20 组件暗色大屏
     STEP 06  论文生成      scripts/06_report.py      期末大论文 Word 文档
     STEP 07  离线打包      scripts/07_offline_bundle.py  大屏内联 echarts/plotly，免联网
@@ -51,8 +51,8 @@ PY = sys.executable
 STEPS: list[tuple[int, str, str, bool]] = [
     (1, "scripts/01_load.py", "数据获取（官方下载 + 按发票抽样）", False),
     (2, "scripts/02_clean.py", "数据清洗与治理（星型模型构建）", False),
-    (3, "scripts/03_analysis.py", "商业分析模型（9 类模型计算）", False),
-    (4, "scripts/04_visuals.py", "静态图表生成（35 张 200dpi）", False),
+    (3, "scripts/03_analysis.py", "商业分析模型（10 类模型计算）", False),
+    (4, "scripts/04_visuals.py", "静态图表生成（37 张 200dpi）", False),
     (5, "scripts/05_dashboard.py", "交互式大屏（20 组件）", False),
     (6, "scripts/06_report.py", "期末大论文生成（Word）", False),
     (7, "scripts/07_offline_bundle.py", "离线自包含大屏打包（内联 JS 库）", True),
@@ -117,7 +117,7 @@ def main() -> int:
     print("\n" + "=" * 74)
     print(f"  全部阶段执行成功，总用时 {time.time() - t_all:.1f}s")
     print("  产出位置：")
-    print("    图表       outputs/figures/                      （35 张 PNG，200dpi）")
+    print("    图表       outputs/figures/                      （37 张 PNG，200dpi）")
     print("    结果表     outputs/tables/                       （CSV / JSON）")
     print("    大屏       outputs/dashboard/dashboard_dark.html （依赖 CDN）")
     print("    离线大屏   outputs/dashboard/dashboard_offline.html（单文件自包含）")

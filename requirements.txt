@@ -17,7 +17,7 @@ statsmodels>=0.14.0      # SARIMA / Holt-Winters 时间序列预测
 mlxtend>=0.23.0          # Apriori 关联规则与购物篮分析
 
 # ---------- 静态可视化 ----------
-matplotlib>=3.8.0        # 35 张静态图表的主要引擎
+matplotlib>=3.8.0        # 37 张静态图表的主要引擎
 seaborn>=0.13.0          # 统计配色与部分分布图
 wordcloud>=1.9.0         # 商品词云（fig24）
 
