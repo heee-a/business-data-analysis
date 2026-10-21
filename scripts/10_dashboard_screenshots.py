@@ -48,6 +48,11 @@ TABS: list[tuple[str, str]] = [
     ("tab4", "预测与复盘"),
 ]
 
+# 组件较多的标签页需要更高的截图视口，否则首屏放不下全部组件
+# （Tab2 共 7 个组件：RFM 玫瑰/分群柱形/留存曲线/漏斗/K-Means 画像/
+#  流失预警十分位/预警名单，1080 高只能展示前 4 个）
+TAB_VIEW_H: dict[str, int] = {"tab2": 2520}
+
 VIEW_W, VIEW_H = 1920, 1080
 GIF_W, GIF_H = 960, 540
 
@@ -89,13 +94,18 @@ def make_variant(html: str, tab_id: str) -> str:
     return html[:idx] + js + html[idx:]
 
 
-def shoot(browser: Path, variant_html: str, out_png: Path) -> bool:
-    """无头浏览器截取视口（1920x1080）。
+def shoot(browser: Path, variant_html: str, out_png: Path,
+          view_h: int = VIEW_H) -> bool:
+    """无头浏览器截取视口（1920×view_h）。
 
     注意：不使用 --virtual-time-budget。大屏内联动画由 rAF/setInterval
     驱动，虚拟时间预算会使其陷入饥饿导致 Chrome 永不退出；去掉后约 4s
     即可完成截图。另使用隔离的 --user-data-dir，规避默认配置文件的
     锁竞争与后台 Web 应用安装逻辑。
+
+    view_h 高于 VIEW_H 用于组件较多的标签页（如 Tab2 共 7 个组件，
+    1080 高的首屏只能展示前 4 个）：加高视口即可一次性完整截取，
+    拼合时再由 Pillow 统一缩放，不影响其他标签页。
     """
     with tempfile.TemporaryDirectory(prefix="dash_shot_") as td:
         tmp_html = Path(td) / "variant.html"
@@ -108,7 +118,7 @@ def shoot(browser: Path, variant_html: str, out_png: Path) -> bool:
             "--disable-gpu",
             "--no-sandbox",
             "--hide-scrollbars",
-            f"--window-size={VIEW_W},{VIEW_H}",
+            f"--window-size={VIEW_W},{view_h}",
             f"--user-data-dir={profile}",
             f"--screenshot={out_png}",
             file_url,
@@ -130,7 +140,14 @@ def build_composites(shots: list[Path]) -> None:
         iou.log("[WARN] 未安装 Pillow，跳过拼图与 GIF 合成")
         return
 
-    ims = [Image.open(p).convert("RGB") for p in shots]
+    ims = []
+    for p in shots:
+        im = Image.open(p).convert("RGB")
+        # 超高截图（如 Tab2 的 2520 高完整版）在拼图/GIF 中取首屏裁剪，
+        # 避免强制缩放导致内容压扁；完整内容保留在单张截图文件里
+        if im.height > VIEW_H:
+            im = im.crop((0, 0, im.width, VIEW_H))
+        ims.append(im)
 
     sheet = Image.new("RGB", (GIF_W * 2, GIF_H * 2), (10, 15, 26))
     for i, im in enumerate(ims):
@@ -160,7 +177,8 @@ def main() -> int:
     shots: list[Path] = []
     for tab_id, tab_name in TABS:
         out_png = DST_DIR / f"大屏_{tab_name}.png"
-        ok = shoot(browser, make_variant(html, tab_id), out_png)
+        ok = shoot(browser, make_variant(html, tab_id), out_png,
+                   view_h=TAB_VIEW_H.get(tab_id, VIEW_H))
         iou.log(f"  Tab {tab_id}（{tab_name}）→ {out_png.name}"
                 + ("  ✓" if ok else "  ✗ 失败"))
         if ok:
