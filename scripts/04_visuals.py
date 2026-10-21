@@ -829,7 +829,10 @@ def fig32_bcg(bcg: pd.DataFrame, params: dict) -> Path:
     ax.set_xlabel("相对市场份额（该品类销售额 / 其余品类平均销售额，虚线 = 1.0）")
     ax.set_ylabel(f"销售额同比增速（%，虚线 = 市场平均 {y_cut:.1f}%）")
     ax.set_title("图32  商品品类组合的波士顿矩阵（BCG）分析", pad=16)
-    ax.legend(loc="lower left", fontsize=9.5, frameon=True)
+    # 图例置底横排：左下角为瘦狗象限小气泡聚集区，就地放置会与
+    # Bath & Fragrance 等气泡及「瘦狗」象限标签相互遮挡
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.145), ncol=4,
+              fontsize=9.5, frameon=False)
     ax.grid(alpha=0.2, linestyle="--")
     return _out(fig, "fig32_bcg_matrix")
 
