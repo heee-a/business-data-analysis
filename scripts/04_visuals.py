@@ -295,13 +295,35 @@ def fig10_bubble(country: pd.DataFrame) -> Path:
     sizes = (c["Revenue"] / c["Revenue"].max() * 2600) + 60
     sc = ax.scatter(c["Customers"], c["AOV"], s=sizes, c=np.arange(len(c)),
                     cmap="tab20", alpha=0.72, edgecolors="#404040", linewidths=0.8)
-    for _, r in c.iterrows():
+    # 小国（客户数 < 250）在左下高度密集，居中标注会完全叠字：
+    # 标签按客单价降序**交替**分两列置于左侧空白区，列内做最小间距推挤，
+    # 引线连回各自气泡。注意不能按顺序对半分——末端窄带（AOV 462~643）
+    # 的 6 国会全部落入第二列而溢出坐标区；交替分列使两列各自覆盖宽区间
+    xmax = float(c["Customers"].max())
+    span_y = float(c["AOV"].max() - c["AOV"].min()) or 1.0
+    min_gap = span_y * 0.062
+    dense = c[c["Customers"] < 250].sort_values("AOV", ascending=False)
+    for col, grp in enumerate([dense.iloc[0::2], dense.iloc[1::2]]):
+        lab_x = -0.16 * xmax - col * 0.115 * xmax
+        prev = np.inf
+        for _, r in grp.iterrows():
+            y = min(float(r["AOV"]), prev - min_gap)
+            ax.annotate(f"{r['Country']}\n{_money(r['Revenue'])}",
+                        xy=(r["Customers"], r["AOV"]), xytext=(lab_x, y),
+                        ha="right", va="center", fontsize=8, color="#262626",
+                        arrowprops=dict(arrowstyle="-", color="#9E9E9E", linewidth=0.7,
+                                        shrinkA=2, shrinkB=3))
+            prev = y
+    for _, r in c[c["Customers"] >= 250].iterrows():
         ax.annotate(f"{r['Country']}\n{_money(r['Revenue'])}",
                     xy=(r["Customers"], r["AOV"]), ha="center", va="center",
                     fontsize=8, color="#262626")
     ax.set_xlabel("客户数（人）")
     ax.set_ylabel(f"客单价 AOV（{GBP}）")
     ax.set_title("图10  主要市场的客户规模·客单价·销售额三维气泡图", pad=14)
+    ax.set_xlim(-0.44 * xmax, xmax * 1.07)
+    ax.set_ylim(0, float(c["AOV"].max()) * 1.06)   # y 轴从 0 起：末端推挤标签
+                                                   # （Belgium y≈167）不致挂到坐标区外
     ax.grid(alpha=0.25, linestyle="--")
     _ = sc
     return _out(fig, "fig10_country_bubble")
