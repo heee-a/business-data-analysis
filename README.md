@@ -157,6 +157,18 @@ python run_all.py --only 4 5      # 仅重新生成图表与大屏
 python run_all.py --skip 1 2      # 数据已就绪时跳过前两步
 ```
 
+**复现性自证**（不只是声明，而是可执行的核对）：
+
+```bash
+# 在另一台机器 / 另一个目录验证「克隆 → 一条命令 → 结果完全一致」
+git archive HEAD | tar -x -C /tmp/repro && cd /tmp/repro
+pip install -r requirements.txt && python run_all.py
+cd <原仓库> && python scripts/verify_reproduction.py /tmp/repro
+# → 输出 161 项产物的字节级比对结果（37 图 + 99 表 + 22 组件 + 论文等）
+```
+
+完整验证过程与已修复的 7 处非确定性来源见 [`docs/复现验证报告.md`](docs/复现验证报告.md)。
+
 > 交互大屏也可直接用浏览器打开 `outputs/dashboard/dashboard_dark.html`（无需运行代码），
 > 或访问在线版：<https://heee-a.github.io/business-data-analysis/>
 
