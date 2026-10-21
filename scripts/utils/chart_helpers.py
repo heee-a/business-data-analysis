@@ -343,32 +343,63 @@ def bullet_chart(ax, labels, values, targets, bar_color: str = "#4472C4",
 def slope_chart(ax, left, right, labels, left_label: str, right_label: str,
                 highlight_k: int = 3, palette: Sequence[str] | None = None,
                 fmt: str = "{:,.0f}"):
-    """坡度图：两个时点的对比，凸显变化方向与幅度。"""
+    """坡度图：两个时点的对比，凸显变化方向与幅度。
+
+    标签防重叠：多个国家数值接近时（如爱尔兰 133 / 荷兰 94 / 德国 82），
+    直接贴数据点放置标签会互相叠字。此处对左右两侧标签按数值升序做
+    最小间距推挤（保持数据点真实位置不变，位移处补细引线），
+    变化率并入右端标签（「值 +xx.x%」），中线不再放文字。
+    """
     palette = palette or ["#4472C4", "#ED7D31", "#A5A5A5", "#FFC000", "#70AD47",
                           "#5B9BD5", "#C00000", "#7030A0"]
+    left = np.asarray(left, dtype=float)
+    right = np.asarray(right, dtype=float)
+    ymin = float(min(left.min(), right.min()))
+    ymax = float(max(left.max(), right.max()))
+    span = (ymax - ymin) or 1.0
+    min_gap = span * 0.055          # 标签最小垂直间距（数据单位）
+
+    def _declutter(values: np.ndarray) -> np.ndarray:
+        """按数值升序推挤：相邻标签至少 min_gap，返回与输入等长的目标 y。"""
+        order = np.argsort(values, kind="stable")
+        placed = np.empty(len(values), dtype=float)
+        prev = -np.inf
+        for i in order:
+            y = max(values[i], prev + min_gap)
+            placed[i] = y
+            prev = y
+        return placed
+
+    left_pos, right_pos = _declutter(left), _declutter(right)
     for i, (a, b, lab) in enumerate(zip(left, right, labels)):
         c = palette[i % len(palette)]
         main = i < highlight_k
         ax.plot([0, 1], [a, b], color=c, linewidth=2.0 if main else 1.1,
                 alpha=0.95 if main else 0.6, marker="o", markersize=5.5, zorder=3)
-        ax.text(-0.03, a, f"{lab}  {fmt.format(a)}", ha="right", va="center",
-                fontsize=9.5, color="#404040", fontweight="bold" if main else "normal")
-        ax.text(1.03, b, fmt.format(b), ha="left", va="center", fontsize=9.5,
-                color="#262626", fontweight="bold")
-        if main:
-            chg = (b - a) / a * 100 if a else 0.0
-            ax.text(0.5, (a + b) / 2 + (max(a, b) - min(a, b)) * 0.06,
-                    f"{chg:+.1f}%", ha="center", va="bottom", fontsize=8.5,
-                    color="#548235" if chg >= 0 else "#C0504D")
-    ax.set_xlim(-0.42, 1.42)
+        # 推挤位移超过阈值时补细引线，指明标签对应的真实数据点
+        if abs(left_pos[i] - a) > span * 0.004:
+            ax.plot([-0.035, -0.006], [left_pos[i], a], color="#C9C9C9",
+                    linewidth=0.7, zorder=2)
+        if abs(right_pos[i] - b) > span * 0.004:
+            ax.plot([1.006, 1.035], [b, right_pos[i]], color="#C9C9C9",
+                    linewidth=0.7, zorder=2)
+        ax.text(-0.045, left_pos[i], f"{lab}  {fmt.format(a)}", ha="right",
+                va="center", fontsize=9.5, color="#404040",
+                fontweight="bold" if main else "normal")
+        chg = (b - a) / a * 100 if a else 0.0
+        ax.text(1.045, right_pos[i],
+                f"{fmt.format(b)}  {chg:+.1f}%", ha="left", va="center",
+                fontsize=9.5, color="#262626",
+                fontweight="bold" if main else "normal")
+    ax.set_xlim(-0.52, 1.52)
     ax.set_xticks([0, 1])
     ax.set_xticklabels([left_label, right_label], fontsize=11.5, fontweight="bold")
     ax.grid(axis="x", visible=False)
     ax.grid(axis="y", alpha=0.2, linestyle="--")
     ax.spines["bottom"].set_visible(False)
     ax.tick_params(bottom=False)
-    ax.axvspan(-0.42, 0.02, color="#F2F2F2", zorder=0)
-    ax.axvspan(0.98, 1.42, color="#F2F2F2", zorder=0)
+    ax.axvspan(-0.52, 0.02, color="#F2F2F2", zorder=0)
+    ax.axvspan(0.98, 1.52, color="#F2F2F2", zorder=0)
     return ax
 
 

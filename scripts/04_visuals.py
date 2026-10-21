@@ -732,13 +732,26 @@ def fig30_apriori_scatter(rules: pd.DataFrame) -> Path:
                     edgecolors="#595959", linewidths=0.5)
     cb = plt.colorbar(sc, ax=ax, fraction=0.03, pad=0.02)
     cb.set_label("提升度 Lift", fontsize=9)
-    top = r.head(6)
+    # TOP6 规则标注防重叠：高置信度区点密集，固定偏移会叠字。
+    # 按置信度降序把标注锚点向下推挤（相邻至少 min_gap 单位），
+    # 文本截短以减少遮挡，y 轴上限留出标注带
+    top = r.head(6).copy().sort_values("confidence", ascending=False)
+    min_gap = 5.0
+    anchor_y, prev = [], None
     for _, row in top.iterrows():
-        ax.annotate(f"{row['AntecedentNames'][:26]} → {row['ConsequentNames'][:20]}",
+        y = row["confidence"] * 100
+        if prev is not None and prev - y < min_gap:
+            y = prev - min_gap
+        anchor_y.append(y)
+        prev = y
+    for (_, row), ay in zip(top.iterrows(), anchor_y):
+        ax.annotate(f"{str(row['AntecedentNames'])[:22]} → {str(row['ConsequentNames'])[:17]}",
                     xy=(row["support"] * 100, row["confidence"] * 100),
-                    xytext=(7, 6), textcoords="offset points", fontsize=8,
-                    color="#404040",
+                    xytext=(row["support"] * 100 + 0.07, ay),
+                    fontsize=8, color="#404040", va="center",
                     arrowprops=dict(arrowstyle="-", color="#BFBFBF", linewidth=0.7))
+    y_top = max(r["confidence"].max() * 100 + 14, anchor_y[0] + 6)
+    ax.set_ylim(0, y_top)
     ax.axhline(cfg.APRIORI_MIN_CONF * 100, color="#808080", linestyle=":", linewidth=1.2,
                label=f"最小置信度 {cfg.APRIORI_MIN_CONF:.0%}")
     ax.axvline(cfg.APRIORI_MIN_SUPPORT * 100, color="#808080", linestyle="--", linewidth=1.2,
@@ -752,8 +765,20 @@ def fig30_apriori_scatter(rules: pd.DataFrame) -> Path:
 
 
 def fig31_apriori_network(rules: pd.DataFrame) -> Path:
-    """M5：关联规则网络图（环形布局，边宽 = 提升度）。"""
+    """M5：关联规则网络图（环形布局，边宽 = 提升度）。
+
+    节点标签用「商品名截断 + 编码」双行显示：纯编码（StockCode）对读者
+    不可读，而完整描述过长会加剧标签重叠，故名称截断至 16 字符、
+    编码以小一号字体附在第二行，完整信息可查 03_apriori_rules.csv。
+    """
     r = rules.head(24).copy()
+    # 编码 → 商品名映射（维度表，避免从名称列按逗号切分——名称本身可能含逗号）
+    try:
+        prod = _load(cfg.CLEAN_DIR / "dim_products.csv")
+        name_map = dict(zip(prod["StockCode"].astype(str).str.strip(),
+                            prod["Description"].astype(str)))
+    except Exception:
+        name_map = {}
     nodes = sorted({c.strip() for row in r["antecedents"] for c in row.split(",")} |
                    {c.strip() for row in r["consequents"] for c in row.split(",")})
     if len(nodes) < 3:
@@ -786,11 +811,16 @@ def fig31_apriori_network(rules: pd.DataFrame) -> Path:
         size = 260 + deg.get(node, 1) * 130
         ax.scatter([x], [y], s=size, color=st.EXCEL_PALETTE[i % len(st.EXCEL_PALETTE)],
                    alpha=0.9, edgecolors="white", linewidths=1.4, zorder=3)
-        ax.text(x * 1.16, y * 1.16, node, ha="center", va="center", fontsize=8.5,
-                color="#262626", fontweight="bold", zorder=4)
+        full = name_map.get(node, "").strip()
+        label = full if len(full) <= 16 else full[:15] + "…"
+        ax.text(x * 1.17, y * 1.17 + 0.035, label, ha="center", va="center",
+                fontsize=8.5, color="#262626", fontweight="bold", zorder=4)
+        ax.text(x * 1.17, y * 1.17 - 0.045, node, ha="center", va="center",
+                fontsize=7, color="#808080", zorder=4)
     ax.set_aspect("equal")
     ax.axis("off")
-    ax.set_title("图31  TOP24 关联规则商品共现网络图（连线粗细 = 提升度）", pad=16)
+    ax.set_title("图31  TOP24 关联规则商品共现网络图（节点 = 商品，连线粗细 = 提升度）",
+                 pad=16)
     return _out(fig, "fig31_apriori_network")
 
 
