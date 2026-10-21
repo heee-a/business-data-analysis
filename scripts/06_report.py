@@ -1546,6 +1546,19 @@ def build_docx() -> Path:
         "    else:        # 横切",
         "        ...",
     ])
+    add_para(doc, "A.6　流失预警的观测窗 / 表现窗切分与时间外验证（防数据泄漏）",
+             indent=False, space_after=2)
+    _add_code(doc, [
+        "# 两窗严格不重叠：特征只来自观测窗，标签只来自表现窗",
+        "obs_end, perf_end = '2011-08-31', '2011-11-30'",
+        "feat = customers[customers['LastPurchase'] <= obs_end]      # 特征截止",
+        "label = customers[(customers['LastPurchase'] > obs_end) &   # 表现窗内",
+        "                   (customers['LastPurchase'] <= perf_end)].index",
+        "y = pd.Series((~feat.index.isin(label)).astype(int),       # 表现窗静默=流失",
+        "              index=feat.index)",
+        "# 时间外验证：用 2011-08-31 之前的数据训练，预测其后的流失",
+        "scores_oof = cross_val_predict(clf, X, y, cv=5, method='predict_proba')[:, 1]",
+    ])
 
     add_heading(doc, "附录 B　GitHub 仓库链接与目录结构", 2)
     add_para(doc, "仓库地址（公开可见）："

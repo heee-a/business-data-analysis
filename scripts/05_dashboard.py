@@ -343,13 +343,18 @@ def build_components(D: dict) -> dict:
     add("tab2_cohort", "同期群留存曲线", ln4, span=7)
 
     # 9) 复购漏斗
+    stages = [(r["Stage"], int(r["Customers"])) for _, r in funnel.iterrows()]
     fn = Funnel(init_opts=base_opts())
-    fn.add("客户数", [(r["Stage"], int(r["Customers"])) for _, r in funnel.iterrows()],
+    fn.add("客户数", stages,
            sort_="descending",
            label_opts=opts.LabelOpts(position="inside", color="#08111E",
                                      font_size=11, font_weight="bold",
                                      formatter="{b}: {c}"),
            itemstyle_opts=opts.ItemStyleOpts(border_color=BG, border_width=1))
+    # pyecharts Funnel 内部以 set() 去重图例数据，字符串哈希随机化会改变跨进程次序；
+    # 此处按漏斗顺序显式重置，保证组件 HTML 字节级可复现
+    if fn.options.get("legend"):
+        fn.options["legend"][0].update(data=[s for s, _ in stages])
     apply_style(fn, "客户复购转化漏斗", subtitle="从首购到忠诚的逐级转化",
                 legend_top="9999px")
     add("tab2_funnel", "复购漏斗", fn, span=5)
@@ -446,6 +451,12 @@ def build_components(D: dict) -> dict:
     wc.add("", [(str(r["Description"])[:24], float(r["Revenue"]))
                 for _, r in top_products.head(40).iterrows()],
            word_size_range=[12, 52], shape="circle", rotate_step=45)
+    # pyecharts WordCloud 为每个词生成随机 RGB 颜色（gen_color 用全局 random），
+    # 跨进程不可复现且配色不可控；此处按商业调色板循环覆写为固定配色
+    _palette = ["#4FC3F7", "#FFB74D", "#81C784", "#E57373", "#BA68C8",
+                "#64B5F6", "#FFD54F", "#AED581", "#F06292", "#7986CB"]
+    for _i, _item in enumerate(wc.options["series"][0]["data"]):
+        _item["textStyle"]["color"] = _palette[_i % len(_palette)]
     wc.set_global_opts(
         title_opts=opts.TitleOpts(title="热销商品词云（字号 = 销售额）", pos_left="center",
                                   pos_top="6px",
