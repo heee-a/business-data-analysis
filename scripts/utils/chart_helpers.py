@@ -111,6 +111,40 @@ def squarify_treemap(ax, sizes, labels=None, colors=None, alpha: float = 0.92,
         laid, _ = _layout_row(row, x, y, dx, dy)
         rects.extend(laid)
 
+    # 标签自适应：用渲染器实测文本像素宽度，超出矩形宽度时逐级缩字号，
+    # 缩到下限仍放不下再以「…」截断——避免窄矩形的文字互相重叠或被画布裁切
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_aspect("equal")
+    fig = ax.figure
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    x0_disp = ax.transData.transform((0.0, 0.0))[0]
+
+    def _rect_px(rw: float) -> float:
+        return ax.transData.transform((rw, 0.0))[0] - x0_disp
+
+    def _shrink_to_fit(t, limit_px: float, fs: float) -> None:
+        """把文本字号逐级下调直到宽度不超过 limit_px（下限 5pt）。"""
+        while fs > 5.0:
+            if t.get_window_extent(renderer).width <= limit_px:
+                return
+            fs -= 0.5
+            t.set_fontsize(fs)
+
+    def _truncate_to_fit(t, limit_px: float) -> None:
+        """缩字号仍超宽时按字符截断（保留「…」）。"""
+        full = t.get_text()
+        while len(full) > 2:
+            t.set_text(full + "…")
+            if t.get_window_extent(renderer).width <= limit_px:
+                return
+            full = full[:-1]
+        t.set_text(full + "…")
+
+    placed: list[tuple] = []
     for (rx, ry, rw, rh, i) in rects:
         if rw <= 0 or rh <= 0:
             continue
@@ -120,17 +154,22 @@ def squarify_treemap(ax, sizes, labels=None, colors=None, alpha: float = 0.92,
             facecolor=face, edgecolor="white", linewidth=1.1, alpha=alpha))
         share = sizes_sorted[i] / sizes.sum() if sizes.sum() else 0
         if share >= min_show and labels is not None:
+            limit = _rect_px(rw) * 0.90                      # 左右各留 5% 呼吸区
             ay = ry + rh / 2 + (0.012 if extra is not None else 0)
-            ax.text(rx + rw / 2, ay, str(labels[i]), ha="center", va="center",
-                    fontsize=fontsize, color="white", fontweight="bold")
+            t1 = ax.text(rx + rw / 2, ay, str(labels[i]), ha="center", va="center",
+                         fontsize=fontsize, color="white", fontweight="bold")
+            _shrink_to_fit(t1, limit, fontsize)
+            if t1.get_window_extent(renderer).width > limit:
+                _truncate_to_fit(t1, limit)
+            placed.append((t1, limit))
             if extra is not None:
-                ax.text(rx + rw / 2, ry + rh / 2 - 0.018, str(extra[i]), ha="center",
-                        va="center", fontsize=fontsize - 1.5, color="white", alpha=0.92)
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
-    ax.set_xticks([])
-    ax.set_yticks([])
-    ax.set_aspect("equal")
+                t2 = ax.text(rx + rw / 2, ry + rh / 2 - 0.018, str(extra[i]),
+                             ha="center", va="center", fontsize=fontsize - 1.5,
+                             color="white", alpha=0.92)
+                _shrink_to_fit(t2, limit, fontsize - 1.5)
+                if t2.get_window_extent(renderer).width > limit:
+                    _truncate_to_fit(t2, limit)
+                placed.append((t2, limit))
     return rects
 
 

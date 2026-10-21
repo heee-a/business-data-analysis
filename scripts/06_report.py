@@ -7,7 +7,7 @@
        生成完整的 docs/图表索引.md；
     2. 按《商业数据分析》期末大作业模板的排版规范，自动生成
        docs/《商业数据分析》期末大论文.docx：
-         - 封面（题目 / 学院 / 专业班级 / 学号 / 姓名 / 完成日期 / 评分表）
+         - 封面（题目 / 学院 / 专业班级 / 学号 / 姓名 / 组员分工 / 完成日期 / 评分表）
          - 摘要 + 关键词
          - 正文 8 章，图表与文字高度融合（正文嵌入 11 张核心图，含大屏演示拼图；
            附录另收录 39 张图表）
@@ -50,7 +50,7 @@ from utils import io_utils as iou  # noqa: E402
 # ============================================================================
 # 论文元数据（姓名/学号/班级需本人填写，见 SCHOOL_INFO）
 # ============================================================================
-TITLE = "零售交易数据的用户价值与品类结构分析"
+TITLE = "《零售交易数据的用户价值与品类结构分析》"
 SCHOOL_INFO = {
     "学院": "数据科学学院",
     "专业班级": "数据科学与大数据技术 大数据241班",
@@ -1356,11 +1356,14 @@ def build_docx() -> Path:
     r.bold = True
     set_cn_font(r, "黑体", size=16)
 
-    for label in ["学　　院", "专业班级", "学　　号", "姓　　名", "完成日期"]:
+    for label in ["学　　院", "专业班级", "学　　号", "姓　　名", "组员分工", "完成日期"]:
         p = doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p.paragraph_format.space_after = Pt(6)
-        rr = p.add_run(f"{label}：{SCHOOL_INFO[label.replace('　', '')]}")
+        key = label.replace("　", "")
+        value = ("独立完成（全流程：数据获取、清洗治理、模型建模、可视化、"
+                 "大屏搭建、论文撰写）" if key == "组员分工" else SCHOOL_INFO[key])
+        rr = p.add_run(f"{label}：{value}")
         set_cn_font(rr, size=10.5)
 
     for _ in range(3):
@@ -1771,14 +1774,22 @@ def audit_paper(docx_path: Path) -> list[tuple[str, str, str, bool]]:
     missing = [s for s in REQUIRED_SECTIONS
                if not any(t.startswith(s) for t in texts)]
 
+    # ---- 封面字段齐备（提交方式要求：题目/姓名/学号/班级/组员分工）
+    cover_fields = ["学　　院", "专业班级", "学　　号", "姓　　名", "组员分工", "完成日期"]
+    cover_missing = [f.replace("　", "") for f in cover_fields
+                     if not any(t.startswith(f + "：") for t in texts)]
+
     rows: list[tuple[str, str, str, bool]] = [
-        ("题目字数", "≤20 字", f"{len(TITLE)} 字", len(TITLE) <= 20),
+        ("题目字数", "≤20 字", f"{len(TITLE.strip('《》'))} 字", len(TITLE.strip('《》')) <= 20),
         ("摘要篇幅", "200–300 字", f"{len(abstract_body)} 字",
          200 <= len(abstract_body) <= 300),
         ("关键词数量", "3–5 个", f"{len(keywords)} 个", 3 <= len(keywords) <= 5),
         ("正文字数", "≥3000 字", f"{body_cn:,} 字", body_cn >= 3000),
         ("必备章节", f"{len(REQUIRED_SECTIONS)} 项齐备",
          "齐备" if not missing else "缺：" + "、".join(missing), not missing),
+        ("封面字段", "题目/学院/班级/学号/姓名/分工/日期",
+         "齐备" if not cover_missing else "缺：" + "、".join(cover_missing),
+         not cover_missing),
         ("图题编号", "章内连续", fig_msg, fig_ok),
         ("表题编号", "章内连续", tab_msg, tab_ok),
         ("交叉引用", "全部有对应图表",
