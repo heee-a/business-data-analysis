@@ -21,7 +21,7 @@ Sheet 构成（按业务顺序）：
     12 复购漏斗        五级转化
     13 预测回测        回测误差 + 未来 30 天
     14 图表索引        37 张图
-    15 大屏组件        20 个组件
+    15 大屏组件        22 个组件
 
 用法：  python scripts/09_excel_summary.py
 """
@@ -63,7 +63,7 @@ SHEETS: list[tuple[str, str, str, str]] = [
     ("13_预测回测", "03_forecast_backtest.csv", "csv", "SARIMA 回测：实际 vs 预测 vs 误差"),
     ("14_未来30天预测", "03_forecast_future.csv", "csv", "SARIMA 未来 30 天点预测与置信区间"),
     ("15_图表索引", "04_figure_index.csv", "csv", "37 张图的编号、类别与说明"),
-    ("16_大屏组件", "05_dashboard_components.csv", "csv", "交互大屏 20 个组件"),
+    ("16_大屏组件", "05_dashboard_components.csv", "csv", "交互大屏 22 个组件"),
     ("17_流失预警窗口", "03_churn_window_summary.csv", "csv", "观测窗/表现窗切分与各窗流失率"),
     ("18_流失预警模型对比", "03_churn_model_metrics.csv", "csv", "LogReg/RF/集成：CV 与时间外 AUC、PR-AUC、KS"),
     ("19_流失预警系数", "03_churn_coefficients.csv", "csv", "14 个特征的标准化系数与方向性检验"),

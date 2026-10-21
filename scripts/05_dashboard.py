@@ -4,7 +4,7 @@
 ==========================================
 技术栈：Pyecharts 2.x（ECharts 5）+ Plotly（世界 choropleth）+ 自研暗色 HTML 栅格布局。
 
-大屏包含 **4 个主题 Tab、21 个可视化组件 + 6 张 KPI 卡**，远超"组件 ≥6"的要求，
+大屏包含 **4 个主题 Tab、22 个可视化组件 + 6 张 KPI 卡**，远超"组件 ≥6"的要求，
 并具备以下联动 / 下钻能力：
     1. Tab 主题切换（销售总览 / 客户价值 / 商品洞察 / 预测复盘）
     2. Timeline 时间轴轮播：按月自动播放各国销售额排名变化（真正的动态联动）
@@ -370,6 +370,53 @@ def build_components(D: dict) -> dict:
     apply_style(b5, "K-Means 客户分群画像", subtitle="左轴：占比　右轴：平均未购天数")
     add("tab2_kmeans", "K-Means 分群画像", b5, span=12)
 
+    # 11) 流失预警：十分位实际流失率 + 累积捕捉率（M10）
+    dec = D["churn_decile"].sort_values("Decile", ascending=False)
+    b8 = Bar(init_opts=base_opts("420px"))
+    b8.add_xaxis([f"第{int(d)}分位" for d in dec["Decile"]])
+    b8.add_yaxis("实际流失率（%）", [round(float(v), 2) for v in dec["实际流失率(%)"]],
+                 color="#E57373",
+                 label_opts=opts.LabelOpts(is_show=True, position="top",
+                                           color=TEXT_SUB, font_size=9),
+                 markline_opts=opts.MarkLineOpts(
+                     data=[opts.MarkLineItem(type_="average", name="全样本流失率 74.22%")],
+                     linestyle_opts=opts.LineStyleOpts(color="#FFB74D", type_="dashed"),
+                     label_opts=opts.LabelOpts(color="#FFB74D", font_size=10)))
+    b8.extend_axis(yaxis=opts.AxisOpts(
+        name="累积捕捉率（%）", position="right",
+        name_textstyle_opts=opts.TextStyleOpts(color=TEXT_SUB),
+        axislabel_opts=opts.LabelOpts(color="#81C784", font_size=10),
+        axisline_opts=opts.AxisLineOpts(is_show=False),
+        splitline_opts=opts.SplitLineOpts(is_show=False)))
+    l8 = Line()
+    l8.add_xaxis([f"第{int(d)}分位" for d in dec["Decile"]])
+    l8.add_yaxis("累积捕捉率（%）", [round(float(v), 2) for v in dec["累积捕捉率(%)"]],
+                 yaxis_index=1, color="#81C784", symbol="circle", symbol_size=6,
+                 linestyle_opts=opts.LineStyleOpts(width=2.2))
+    b8.overlap(l8)
+    apply_style(b8, "流失预警：十分位区分度（LogReg 时间外 AUC 0.7439）",
+                subtitle="柱：十分位实际流失率　线：按概率降序的累积捕捉率",
+                x_rotate=30)
+    add("tab2_churn_decile", "流失预警十分位区分度", b8, span=7)
+
+    # 12) 流失预警：TOP10 期望损失名单（M10）
+    watch = D["churn_watch"].head(10)
+    rows = []
+    for _, r in watch.iterrows():
+        rows.append([f"{int(r['Rank'])}", f"{int(r['CustomerID'])}",
+                     f"{float(r['PChurn'])*100:.1f}%",
+                     f"{float(r['HistValue']):,.0f}",
+                     f"{float(r['ExpLoss']):,.0f}"])
+    tb2 = Table()
+    tb2.add(["排名", "客户ID", "预测流失概率", "历史消费(£)", "期望损失(£)"], rows)
+    tb2.set_global_opts(
+        title_opts=opts.TitleOpts(
+            title="流失预警名单 TOP10（按期望损失 = 概率 × 历史消费）",
+            pos_left="center", pos_top="6px",
+            title_textstyle_opts=opts.TextStyleOpts(color=TEXT_MAIN, font_size=14,
+                                                    font_weight="bold")))
+    add("tab2_churn_watch", "流失预警 TOP10 名单", tb2, span=5)
+
     # ---------- Tab3 商品洞察 ----------
     # 11) 商品 TOP10
     tp = top_products.head(10).iloc[::-1]
@@ -670,7 +717,7 @@ def build_html(comp: dict, kpis: dict, map_html: str, dashboard_online: bool = T
         ("tab1", "① 销售总览", ["tab1_trend", "tab1_timeline", "tab1_dual", "tab1_country_bar",
                                 "tab1_heatmap"]),
         ("tab2", "② 客户价值", ["tab2_rfm_pie", "tab2_rfm_bar", "tab2_cohort", "tab2_funnel",
-                                "tab2_kmeans"]),
+                                "tab2_kmeans", "tab2_churn_decile", "tab2_churn_watch"]),
         ("tab3", "③ 商品洞察", ["tab3_top_products", "tab3_cat_pie", "tab3_wordcloud",
                                 "tab3_abc", "tab3_rules", "tab3_table"]),
         ("tab4", "④ 预测与复盘", ["tab4_forecast", "tab4_backtest", "tab4_yoy", "tab4_bcg"]),
@@ -733,7 +780,7 @@ def build_html(comp: dict, kpis: dict, map_html: str, dashboard_online: bool = T
            ｜ 全 Python 实现（Matplotlib / Seaborn / Pyecharts / Plotly）</div>
     </div>
     <div class="meta">更新时间：{now}<br/>随机种子 {kpis.get('_seed', 2026)}　抽样比例 30%（按发票）<br/>
-        组件数 21 ｜ KPI 卡 6 ｜ Tab 联动 4 组</div>
+        组件数 {len(comp)} ｜ KPI 卡 6 ｜ Tab 联动 4 组</div>
   </header>
 
   <div class="kpis">{kpi_html}</div>
@@ -787,6 +834,8 @@ def main() -> None:
         "forecast_bt": load("03_forecast_backtest.csv"),
         "top_products": load("03_top_products.csv"),
         "funnel": load("03_repurchase_funnel.csv"),
+        "churn_decile": load("03_churn_decile_lift.csv"),
+        "churn_watch": load("03_churn_watchlist.csv"),
         "kpis": json.loads((cfg.TAB_DIR / "03_executive_kpis.json").read_text(encoding="utf-8")),
         "country_monthly": country_monthly,
     }

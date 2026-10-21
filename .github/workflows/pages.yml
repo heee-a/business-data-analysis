@@ -7,7 +7,7 @@
 #   ├── dashboard/dashboard_offline.html 交互大屏（JS 库已内联，打开即用）
 #   ├── dashboard/dashboard_dark.html    交互大屏（CDN 版，体积更小）
 #   ├── dashboard_screenshots/           大屏分 Tab 演示截图 + 拼图 + GIF
-#   └── figures/fig01 ~ fig35.png       35 张 200dpi 图表（图廊缩略 + 大图）
+#   └── figures/fig01 ~ fig37.png       37 张 200dpi 图表（图廊缩略 + 大图）
 # 说明：落地页与大屏所需的静态资源由仓库中已生成的 outputs/ 直接拷贝，
 #       不在 CI 中重跑数据流水线（避免每次推送都消耗数分钟与下载 45MB 源数据）。
 # =============================================================================

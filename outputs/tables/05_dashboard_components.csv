@@ -9,6 +9,8 @@ tab2_rfm_bar,RFM 客群规模与贡献,6
 tab2_cohort,同期群留存曲线,7
 tab2_funnel,复购漏斗,5
 tab2_kmeans,K-Means 分群画像,12
+tab2_churn_decile,流失预警十分位区分度,7
+tab2_churn_watch,流失预警 TOP10 名单,5
 tab3_top_products,TOP10 热销商品,7
 tab3_cat_pie,品类结构环形图,5
 tab3_wordcloud,热销商品词云,6
