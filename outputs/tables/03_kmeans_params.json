@@ -7,7 +7,7 @@
     "Monetary"
   ],
   "preprocess": "QuantileTransformer(output_distribution='normal')",
-  "preprocess_reason": "RFM 强右偏（Monetary 极值/中位数 ≈ 400 倍），K-Means 基于欧氏距离，须先消除偏态与量纲差异",
+  "preprocess_reason": "RFM 强右偏（Monetary 极值/中位数 ≈ 423 倍），K-Means 基于欧氏距离，须先消除偏态与量纲差异",
   "silhouette_before": 0.4271,
   "silhouette_gain": 0.3141,
   "bootstrap_ari": 1.0,

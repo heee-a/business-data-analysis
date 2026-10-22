@@ -141,7 +141,7 @@ footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10
       <div class="kpi"><div class="v">£567.6 万</div><div class="l">总销售额</div><div class="n">11,875 张发票 · 36 国</div></div>
       <div class="kpi"><div class="v">£488.22</div><div class="l">平均客单价</div><div class="n">3,726 位注册客户</div></div>
       <div class="kpi"><div class="v g">84.96%</div><div class="l">英国市场占比</div><div class="n">市场集中度过高</div></div>
-      <div class="kpi"><div class="v y">80.0%</div><div class="l">A 类 SKU 营收贡献</div><div class="n">仅 1,135 个（22.42%）</div></div>
+      <div class="kpi"><div class="v y">80.0%</div><div class="l">A 类 SKU 营收贡献</div><div class="n">仅 996 个（22.17%）</div></div>
       <div class="kpi"><div class="v">10.65%</div><div class="l">次月留存率</div><div class="n">此后稳定 9%~12%</div></div>
       <div class="kpi"><div class="v">52.74%</div><div class="l">二次购买转化率</div><div class="n">忠诚客户 535 位（14.36%）</div></div>
       <div class="kpi"><div class="v">3,866</div><div class="l">有效关联规则</div><div class="n">最强提升度 16.11</div></div>
@@ -290,8 +290,20 @@ footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10
     </table>
     <p class="lead">三个时间外窗口 AUC 落在 <b>0.7100–0.7439</b>，波动仅 0.034 且无衰减趋势——模型学到的是跨时间稳定的行为规律，不是某个窗口的噪声。</p>
 
+    <p class="lead" style="margin-top:26px">② 续：窗口长度敏感吗？—— 不敏感</p>
+    <table class="tbl">
+      <thead><tr><th>表现窗</th><th>窗口类型</th><th>样本数</th><th>流失率</th><th>AUC</th><th>PR_AUC</th><th>KS</th></tr></thead>
+      <tbody>
+        <tr><td>2011-10-31 ~ 2011-11-30</td><td>长度 1 个月</td><td>3,555</td><td>86.53%</td><td>0.7172</td><td>0.9325</td><td>0.3343</td></tr>
+        <tr><td>2011-08-31 ~ 2011-11-30</td><td>长度 3 个月（本文采用）</td><td>3,255</td><td>74.22%</td><td><b>0.7292</b></td><td>0.8611</td><td>0.3533</td></tr>
+        <tr><td>2011-05-31 ~ 2011-11-30</td><td>长度 6 个月</td><td>3,016</td><td>64.66%</td><td>0.7198</td><td>0.7940</td><td>0.3358</td></tr>
+        <tr><td>2011-02-28 ~ 2011-11-30</td><td>长度 9 个月</td><td>2,682</td><td>56.90%</td><td>0.7114</td><td>0.7260</td><td>0.3230</td></tr>
+      </tbody>
+    </table>
+    <p class="lead">「3 个月未购买即流失」是人为阈值。固定截止日 2011-11-30、只放宽表现窗长度后，四种长度 AUC 极差仅 <b>0.018</b>（0.7114–0.7292），排序能力对窗口长度不敏感；窗口越长流失率越低（86.53% → 56.90%），符合「窗口越长、被判流失的门槛越高」的直觉。</p>
+
     <p class="lead" style="margin-top:26px">③ 阈值成本收益：按概率硬切<b>不经济</b>，应按期望损失排序</p>
-    <p class="lead">在 4 组「触达成本率 × 挽回率」情景下各扫描 6 档触达比例（5%–50%），<b>所有情景的净收益都随触达比例单调上升，在扫描上限 50% 处仍未出现峰值</b>。这说明高低概率客户之间的<b>价值差异</b>比概率差异更能决定「走了亏多少」。因此预警名单按 <b>期望损失 = 流失概率 × 历史累计消费</b> 排序，取前 300 位，合计期望损失 <b>£365,989</b>（相当于观测窗总营收的 9.12%）。</p>
+    <p class="lead">在 4 组「触达成本率 × 挽回率」情景下各扫描 6 档触达比例（5%–50%），<b>所有情景的净收益都随触达比例单调上升，在扫描上限 50% 处仍未出现峰值</b>。这说明高低概率客户之间的<b>价值差异</b>比概率差异更能决定「走了亏多少」。因此预警名单按 <b>期望损失 = 流失概率 × 历史累计消费</b> 排序，取前 300 位，合计期望损失 <b>£365,989</b>（相当于主样本 3,255 位客户历史累计消费总额 401.21 万英镑的 9.12%）。</p>
 
     <p class="lead" style="margin-top:26px">④ 集成消融：不值得</p>
     <p class="lead">逻辑回归与随机森林的交叉验证样本外概率等权平均后，AUC 仅从 0.7241 升至 0.7244（<b>+0.0003</b>），远不足以抵消复杂度与可解释性损失，故采用单一逻辑回归。方法细节：集成概率必须来自交叉验证的样本外预测，若直接用训练集拟合概率求平均，会得到 0.7625 这类虚高值。</p>
@@ -308,7 +320,7 @@ footer .lic{background:var(--card);border:1px solid var(--line);border-radius:10
       <thead><tr><th>建议</th><th>核心模型证据</th><th>量化预期效果</th><th>优先级</th><th>效果度量指标（KPI）</th></tr></thead>
       <tbody>
         <tr><td>重要价值客户专属运营</td><td>RFM：1,069 人（28.69%）贡献 69.99% 营收</td><td>留存率每 +1pp ≈ 保住 £3.5 万/年</td><td><b>P1</b></td><td>该群季度留存率、人均年贡献额</td></tr>
-        <tr><td>ABC 重构库存资金配置</td><td>帕累托：22.42% SKU 贡献 80% 销售额</td><td>库存周转效率 +30%，不影响 80% 营收盘子</td><td><b>P1</b></td><td>A 类现货率、C 类 SKU 占比</td></tr>
+        <tr><td>ABC 重构库存资金配置</td><td>帕累托：22.17% SKU 贡献 80% 销售额</td><td>库存周转效率 +30%，不影响 80% 营收盘子</td><td><b>P1</b></td><td>A 类现货率、C 类 SKU 占比</td></tr>
         <tr><td>组合陈列 + 捆绑优惠</td><td>Apriori：3,866 条规则，最强提升度 16.11</td><td>提升连带率与客单价</td><td><b>P2</b></td><td>连带率（件/单）、组合订单占比</td></tr>
         <tr><td>提前 8 周备货 + CI95 安全库存</td><td>预测 MAPE 34.70%，11 月峰值 £42.05 万</td><td>降低旺季缺货损失，抑制季末积压</td><td><b>P2</b></td><td>旺季缺货率、季末滞销库存占比</td></tr>
         <tr><td>分层召回沉睡客群</td><td>K-Means：1,761 人（47.26%）<b>全部仅购买 1 次</b>，人均 £357</td><td>召回 ROI ≥ 3:1（单次触达成本 &lt;£5）</td><td><b>P1</b></td><td>30 日回流率、单次召回成本</td></tr>

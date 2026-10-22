@@ -24,9 +24,9 @@
   "StockCode":"85099B",
   "Description":"JUMBO BAG RED RETROSPOT",
   "ProductCategory":"Bags & Storage",
-  "Revenue":51643.81,
-  "RevenueShare":0.9099,
-  "CumulativeShare":4.14,
+  "Revenue":63023.72,
+  "RevenueShare":1.1103,
+  "CumulativeShare":4.34,
   "ABCCategory":"A"
  },
  {
@@ -36,7 +36,7 @@
   "ProductCategory":"Party & Occasion",
   "Revenue":43022.08,
   "RevenueShare":0.758,
-  "CumulativeShare":4.9,
+  "CumulativeShare":5.1,
   "ABCCategory":"A"
  },
  {
@@ -46,7 +46,7 @@
   "ProductCategory":"Home Decor & Lighting",
   "Revenue":37021.37,
   "RevenueShare":0.6522,
-  "CumulativeShare":5.55,
+  "CumulativeShare":5.75,
   "ABCCategory":"A"
  },
  {
@@ -56,7 +56,7 @@
   "ProductCategory":"Christmas & Seasonal",
   "Revenue":29978.8,
   "RevenueShare":0.5282,
-  "CumulativeShare":6.08,
+  "CumulativeShare":6.28,
   "ABCCategory":"A"
  },
  {
@@ -66,7 +66,7 @@
   "ProductCategory":"Bags & Storage",
   "Revenue":24146.08,
   "RevenueShare":0.4254,
-  "CumulativeShare":6.51,
+  "CumulativeShare":6.71,
   "ABCCategory":"A"
  },
  {
@@ -76,7 +76,7 @@
   "ProductCategory":"Home Decor & Lighting",
   "Revenue":24018.49,
   "RevenueShare":0.4232,
-  "CumulativeShare":6.93,
+  "CumulativeShare":7.13,
   "ABCCategory":"A"
  },
  {
@@ -86,7 +86,7 @@
   "ProductCategory":"Home Decor & Lighting",
   "Revenue":23511.86,
   "RevenueShare":0.4142,
-  "CumulativeShare":7.34,
+  "CumulativeShare":7.54,
   "ABCCategory":"A"
  },
  {
@@ -96,207 +96,207 @@
   "ProductCategory":"Other Household",
   "Revenue":22804.9,
   "RevenueShare":0.4018,
-  "CumulativeShare":7.74,
+  "CumulativeShare":7.95,
   "ABCCategory":"A"
  },
  {
   "Rank":11,
+  "StockCode":"22386",
+  "Description":"JUMBO BAG PINK POLKADOT",
+  "ProductCategory":"Bags & Storage",
+  "Revenue":22765.96,
+  "RevenueShare":0.4011,
+  "CumulativeShare":8.35,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":12,
   "StockCode":"21137",
   "Description":"BLACK RECORD COVER FRAME",
   "ProductCategory":"Home Decor & Lighting",
   "Revenue":22703.16,
   "RevenueShare":0.4,
-  "CumulativeShare":8.14,
+  "CumulativeShare":8.75,
   "ABCCategory":"A"
  },
  {
-  "Rank":12,
+  "Rank":13,
+  "StockCode":"20725",
+  "Description":"LUNCH BAG RED RETROSPOT",
+  "ProductCategory":"Bags & Storage",
+  "Revenue":21525.05,
+  "RevenueShare":0.3792,
+  "CumulativeShare":9.13,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":14,
+  "StockCode":"22197",
+  "Description":"SMALL POPCORN HOLDER",
+  "ProductCategory":"Home Decor & Lighting",
+  "Revenue":20469.77,
+  "RevenueShare":0.3606,
+  "CumulativeShare":9.49,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":15,
+  "StockCode":"20685",
+  "Description":"DOORMAT RED RETROSPOT",
+  "ProductCategory":"Other Household",
+  "Revenue":19719.17,
+  "RevenueShare":0.3474,
+  "CumulativeShare":9.83,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":16,
   "StockCode":"22469",
   "Description":"HEART OF WICKER SMALL",
   "ProductCategory":"Other Household",
   "Revenue":19455.53,
   "RevenueShare":0.3428,
-  "CumulativeShare":8.49,
+  "CumulativeShare":10.18,
   "ABCCategory":"A"
  },
  {
-  "Rank":13,
+  "Rank":17,
   "StockCode":"22112",
   "Description":"CHOCOLATE HOT WATER BOTTLE",
   "ProductCategory":"Kitchen & Dining",
   "Revenue":19174.46,
   "RevenueShare":0.3378,
-  "CumulativeShare":8.83,
+  "CumulativeShare":10.51,
   "ABCCategory":"A"
  },
  {
-  "Rank":14,
+  "Rank":18,
   "StockCode":"22114",
   "Description":"HOT WATER BOTTLE TEA AND SYMPATHY",
   "ProductCategory":"Kitchen & Dining",
   "Revenue":18879.49,
   "RevenueShare":0.3326,
-  "CumulativeShare":9.16,
+  "CumulativeShare":10.85,
   "ABCCategory":"A"
  },
  {
-  "Rank":15,
+  "Rank":19,
   "StockCode":"21621",
   "Description":"VINTAGE UNION JACK BUNTING",
   "ProductCategory":"Stationery & Wrap",
   "Revenue":18839.14,
   "RevenueShare":0.3319,
-  "CumulativeShare":9.49,
+  "CumulativeShare":11.18,
   "ABCCategory":"A"
  },
  {
-  "Rank":16,
+  "Rank":20,
   "StockCode":"85099C",
   "Description":"JUMBO  BAG BAROQUE BLACK WHITE",
   "ProductCategory":"Bags & Storage",
   "Revenue":18371.76,
   "RevenueShare":0.3237,
-  "CumulativeShare":9.81,
+  "CumulativeShare":11.5,
   "ABCCategory":"A"
  },
  {
-  "Rank":17,
+  "Rank":21,
   "StockCode":"15056N",
   "Description":"EDWARDIAN PARASOL NATURAL",
   "ProductCategory":"Garden & Outdoor",
   "Revenue":18300.92,
   "RevenueShare":0.3224,
-  "CumulativeShare":10.14,
+  "CumulativeShare":11.82,
   "ABCCategory":"A"
  },
  {
-  "Rank":18,
+  "Rank":22,
+  "StockCode":"21843",
+  "Description":"RED RETROSPOT CAKE STAND",
+  "ProductCategory":"Kitchen & Dining",
+  "Revenue":18073.93,
+  "RevenueShare":0.3184,
+  "CumulativeShare":12.14,
+  "ABCCategory":"A"
+ },
+ {
+  "Rank":23,
   "StockCode":"23084",
   "Description":"RABBIT NIGHT LIGHT",
   "ProductCategory":"Home Decor & Lighting",
   "Revenue":17705.02,
   "RevenueShare":0.3119,
-  "CumulativeShare":10.45,
+  "CumulativeShare":12.45,
   "ABCCategory":"A"
  },
  {
-  "Rank":19,
+  "Rank":24,
   "StockCode":"22328",
   "Description":"ROUND SNACK BOXES SET OF 4 FRUITS",
   "ProductCategory":"Bags & Storage",
-  "Revenue":17561.02,
-  "RevenueShare":0.3094,
-  "CumulativeShare":10.76,
+  "Revenue":17702.62,
+  "RevenueShare":0.3119,
+  "CumulativeShare":12.77,
   "ABCCategory":"A"
  },
  {
-  "Rank":20,
+  "Rank":25,
   "StockCode":"21931",
   "Description":"JUMBO STORAGE BAG SUKI",
   "ProductCategory":"Bags & Storage",
   "Revenue":17514.24,
   "RevenueShare":0.3086,
-  "CumulativeShare":11.07,
+  "CumulativeShare":13.08,
   "ABCCategory":"A"
  },
  {
-  "Rank":21,
+  "Rank":26,
   "StockCode":"22910",
   "Description":"PAPER CHAIN KIT VINTAGE CHRISTMAS",
   "ProductCategory":"Christmas & Seasonal",
   "Revenue":17479.48,
   "RevenueShare":0.308,
-  "CumulativeShare":11.37,
+  "CumulativeShare":13.38,
   "ABCCategory":"A"
  },
  {
-  "Rank":22,
+  "Rank":27,
   "StockCode":"82484",
   "Description":"WOOD BLACK BOARD ANT WHITE FINISH",
   "ProductCategory":"Other Household",
   "Revenue":17307.17,
   "RevenueShare":0.3049,
-  "CumulativeShare":11.68,
-  "ABCCategory":"A"
- },
- {
-  "Rank":23,
-  "StockCode":"22386",
-  "Description":"JUMBO BAG PINK POLKADOT",
-  "ProductCategory":"Bags & Storage",
-  "Revenue":16687.24,
-  "RevenueShare":0.294,
-  "CumulativeShare":11.97,
-  "ABCCategory":"A"
- },
- {
-  "Rank":24,
-  "StockCode":"22411",
-  "Description":"JUMBO SHOPPER VINTAGE RED PAISLEY",
-  "ProductCategory":"Bags & Storage",
-  "Revenue":16494.81,
-  "RevenueShare":0.2906,
-  "CumulativeShare":12.26,
-  "ABCCategory":"A"
- },
- {
-  "Rank":25,
-  "StockCode":"21929",
-  "Description":"JUMBO BAG PINK VINTAGE PAISLEY",
-  "ProductCategory":"Bags & Storage",
-  "Revenue":16278.28,
-  "RevenueShare":0.2868,
-  "CumulativeShare":12.55,
-  "ABCCategory":"A"
- },
- {
-  "Rank":26,
-  "StockCode":"21232",
-  "Description":"STRAWBERRY CERAMIC TRINKET BOX",
-  "ProductCategory":"Bags & Storage",
-  "Revenue":16214.45,
-  "RevenueShare":0.2857,
-  "CumulativeShare":12.84,
-  "ABCCategory":"A"
- },
- {
-  "Rank":27,
-  "StockCode":"21733",
-  "Description":"RED HANGING HEART T-LIGHT HOLDER",
-  "ProductCategory":"Home Decor & Lighting",
-  "Revenue":16091.24,
-  "RevenueShare":0.2835,
-  "CumulativeShare":13.12,
+  "CumulativeShare":13.69,
   "ABCCategory":"A"
  },
  {
   "Rank":28,
-  "StockCode":"22111",
-  "Description":"SCOTTIE DOG HOT WATER BOTTLE",
-  "ProductCategory":"Kitchen & Dining",
-  "Revenue":15444.11,
-  "RevenueShare":0.2721,
-  "CumulativeShare":13.39,
+  "StockCode":"48138",
+  "Description":"DOORMAT UNION FLAG",
+  "ProductCategory":"Other Household",
+  "Revenue":16886.94,
+  "RevenueShare":0.2975,
+  "CumulativeShare":13.99,
   "ABCCategory":"A"
  },
  {
   "Rank":29,
-  "StockCode":"21731",
-  "Description":"RED TOADSTOOL LED NIGHT LIGHT",
-  "ProductCategory":"Home Decor & Lighting",
-  "Revenue":15338.45,
-  "RevenueShare":0.2702,
-  "CumulativeShare":13.66,
+  "StockCode":"21232",
+  "Description":"STRAWBERRY CERAMIC TRINKET BOX",
+  "ProductCategory":"Bags & Storage",
+  "Revenue":16624.47,
+  "RevenueShare":0.2929,
+  "CumulativeShare":14.28,
   "ABCCategory":"A"
  },
  {
   "Rank":30,
-  "StockCode":"84029E",
-  "Description":"RED WOOLLY HOTTIE WHITE HEART.",
-  "ProductCategory":"Other Household",
-  "Revenue":14791.04,
-  "RevenueShare":0.2606,
-  "CumulativeShare":13.92,
+  "StockCode":"22090",
+  "Description":"PAPER BUNTING RETROSPOT",
+  "ProductCategory":"Stationery & Wrap",
+  "Revenue":16546.93,
+  "RevenueShare":0.2915,
+  "CumulativeShare":14.57,
   "ABCCategory":"A"
  }
 ]

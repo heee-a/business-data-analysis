@@ -262,11 +262,25 @@ def m3_cohort(df: pd.DataFrame, max_periods: int = 24) -> tuple[pd.DataFrame, pd
 # M4 帕累托 / ABC 分类
 # ===========================================================================
 def m4_pareto_abc(df: pd.DataFrame) -> pd.DataFrame:
-    """ABC 分类（按销售额贡献）：A = 累计 80%，B = 累计 95%，C = 其余。"""
+    """ABC 分类（按销售额贡献）：A = 累计 80%，B = 累计 95%，C = 其余。
+
+    统计单元为 SKU（StockCode）。事实表中同一编码可能对应多条 Description /
+    ProductCategory（描述拼写差异或关键词匹配到不同品类），若按三元组分组会把
+    同一 SKU 拆成多行：既虚增 SKU 总数（5,062 行 vs 实际 4,493 个 SKU），又
+    因收入被拆分而低估头部商品的累计占比。故先按 StockCode 聚合，Description
+    与 ProductCategory 取出现频次最高的取值（平局时取字典序，保证可复现）。
+    """
     d = df[df["OrderDate"] <= pd.Timestamp(CUT_DATE)]
-    p = (d.groupby(["StockCode", "Description", "ProductCategory"])
+
+    def _mode(s: pd.Series):
+        m = s.mode()
+        return m.iat[0] if not m.empty else s.iat[0]
+
+    p = (d.groupby("StockCode")
            .agg(Revenue=("Revenue", "sum"), Quantity=("Quantity", "sum"),
-                TimesSold=("Revenue", "size"))
+                TimesSold=("Revenue", "size"),
+                Description=("Description", _mode),
+                ProductCategory=("ProductCategory", _mode))
            .reset_index().sort_values("Revenue", ascending=False).reset_index(drop=True))
     p["Revenue"] = p["Revenue"].round(2)
     p["RevenueShare"] = (p["Revenue"] / p["Revenue"].sum() * 100).round(4)
@@ -274,6 +288,8 @@ def m4_pareto_abc(df: pd.DataFrame) -> pd.DataFrame:
     p["Rank"] = np.arange(1, len(p) + 1)
     p["ABCCategory"] = pd.cut(p["CumulativeShare"], bins=[-0.01, 80, 95, 100.01],
                               labels=["A", "B", "C"]).astype(str)
+    p = p[["StockCode", "Description", "ProductCategory", "Revenue", "Quantity",
+           "TimesSold", "RevenueShare", "CumulativeShare", "Rank", "ABCCategory"]]
     iou.save_table(p, "03_abc_products", also_json=False)
 
     s = (p.groupby("ABCCategory")
@@ -826,7 +842,7 @@ def m8_kmeans(rfm: pd.DataFrame) -> pd.DataFrame:
     iou.save_json({"best_k": int(best_k), "silhouette": round(float(best_score), 4),
                    "features": ["Recency", "Frequency", "Monetary"],
                    "preprocess": "QuantileTransformer(output_distribution='normal')",
-                   "preprocess_reason": ("RFM 强右偏（Monetary 极值/中位数 ≈ 400 倍），"
+                   "preprocess_reason": ("RFM 强右偏（Monetary 极值/中位数 ≈ 423 倍），"
                                          "K-Means 基于欧氏距离，须先消除偏态与量纲差异"),
                    "silhouette_before": round(base_sil, 4),
                    "silhouette_gain": round(float(best_score) - base_sil, 4),
@@ -1204,6 +1220,28 @@ def m10_churn(df: pd.DataFrame) -> pd.DataFrame:
     oot_test = oot[oot["窗口类型"] != "主建模窗口（样本内）"]["AUC"]
     iou.log(f"  多窗口时间外 AUC：{oot_test.tolist()}（均值 {oot_test.mean():.4f}）")
 
+    # ---------------- 流失定义窗口长度敏感性 ----------------
+    # 「3 个月未购买即流失」的定义带有主观性。固定表现窗截止日（2011-11-30），
+    # 只把窗口长度从 1 个月放宽到 9 个月（观测窗随之前移，两窗始终不重叠），
+    # 用同一个主窗训练的模型评分，观察排序能力（AUC）对窗口长度是否敏感。
+    len_rows = []
+    for w_t0, w_t1, tag in (("2011-10-31", T1, "长度 1 个月"),
+                            (T0, T1, "长度 3 个月（本文采用）"),
+                            ("2011-05-31", T1, "长度 6 个月"),
+                            ("2011-02-28", T1, "长度 9 个月")):
+        Xw, yw = _build_churn_window(d, w_t0, w_t1)
+        Zw = StandardScaler().fit_transform(np.log1p(Xw[CHURN_FEATS].clip(lower=0)))
+        pw = fitted[primary].predict_proba(Zw)[:, 1]
+        len_rows.append({"表现窗": f"{w_t0} ~ {w_t1}", "窗口类型": tag,
+                         "样本客户数": len(yw), "流失率(%)": round(float(yw.mean() * 100), 2),
+                         "AUC": round(float(roc_auc_score(yw, pw)), 4),
+                         "PR_AUC": round(float(average_precision_score(yw, pw)), 4),
+                         "KS": round(_ks(yw, pw), 4)})
+    wlen = pd.DataFrame(len_rows)
+    iou.save_table(wlen, "03_churn_window_length")
+    iou.log(f"  窗口长度敏感性 AUC：{wlen['AUC'].tolist()}"
+            f"（极差 {wlen['AUC'].max() - wlen['AUC'].min():.4f}）")
+
     # ---------------- 阈值成本收益：按概率切触达是否划算 ----------------
     # 情景假设：触达成本率 = 触达支出 ÷ 客户历史价值；挽回率 = 被触达后留存下来的比例
     roi_rows = []
@@ -1269,6 +1307,13 @@ def m10_churn(df: pd.DataFrame) -> pd.DataFrame:
         "oot_pr_auc": float(metrics.loc[0, "时间外_PR_AUC"]),
         "oot_auc_mean": round(float(oot_test.mean()), 4),
         "oot_auc_range": [round(float(oot_test.min()), 4), round(float(oot_test.max()), 4)],
+        "window_length_sensitivity": {
+            "design": "截止日固定 2011-11-30，表现窗长度 1/3/6/9 个月，观测窗随之前移",
+            "auc": [float(v) for v in wlen["AUC"]],
+            "auc_range": [round(float(wlen["AUC"].min()), 4),
+                          round(float(wlen["AUC"].max()), 4)],
+            "churn_rate": [float(v) for v in wlen["流失率(%)"]],
+        },
         "ensemble_auc": float(metrics.iloc[-1]["CV_AUC"]),
         "ensemble_gain": round(float(metrics.iloc[-1]["CV_AUC"] - metrics.loc[0, "CV_AUC"]), 4),
         "auc_one_off_customers": float(one_auc),

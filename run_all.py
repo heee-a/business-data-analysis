@@ -10,7 +10,7 @@ run_all.py —— 一键复现入口
 流水线共 10 个阶段：
     STEP 01  数据获取      scripts/01_load.py        官方 ZIP 下载 + 按发票抽样
     STEP 02  数据清洗      scripts/02_clean.py       去重/缺失/异常治理 + 星型模型
-    STEP 03  分析模型      scripts/03_analysis.py    8 类商业模型 + 9 组业务图数据
+    STEP 03  分析模型      scripts/03_analysis.py    10 类商业模型 + 12 组业务图数据
     STEP 04  静态图表      scripts/04_visuals.py     37 张 200dpi 图表
     STEP 05  交互大屏      scripts/05_dashboard.py   4 标签页 22 组件暗色大屏
     STEP 06  论文生成      scripts/06_report.py      期末大论文 Word 文档

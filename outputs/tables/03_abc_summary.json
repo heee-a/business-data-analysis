@@ -1,26 +1,26 @@
 [
  {
   "ABCCategory":"A",
-  "SKUs":1135,
-  "Revenue":4541100.0899999999,
-  "Quantity":2242989,
-  "SKU_Share":22.42,
-  "RevenueShare":80.0
+  "SKUs":996,
+  "Revenue":4540111.0599999996,
+  "Quantity":2237736,
+  "SKU_Share":22.17,
+  "RevenueShare":79.99
  },
  {
   "ABCCategory":"B",
-  "SKUs":1334,
-  "Revenue":851399.15,
-  "Quantity":721476,
-  "SKU_Share":26.35,
-  "RevenueShare":15.0
+  "SKUs":1206,
+  "Revenue":852309.5600000001,
+  "Quantity":719159,
+  "SKU_Share":26.84,
+  "RevenueShare":15.02
  },
  {
   "ABCCategory":"C",
-  "SKUs":2593,
-  "Revenue":283567.53,
-  "Quantity":259337,
-  "SKU_Share":51.22,
+  "SKUs":2291,
+  "Revenue":283646.15,
+  "Quantity":266907,
+  "SKU_Share":50.99,
   "RevenueShare":5.0
  }
 ]
